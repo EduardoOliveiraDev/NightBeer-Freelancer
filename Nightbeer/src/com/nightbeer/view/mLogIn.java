@@ -3,6 +3,8 @@ package com.nightbeer.view;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.*;
 
 import com.nightbeer.dao.dados;
 import com.nightbeer.buildmethods.Build;
@@ -37,7 +39,6 @@ public class mLogIn extends JFrame implements ActionListener{
 		
 		labelPassword = buildMethod.createLabel("Password", 110, 130, 60, 30, 14);
 		textFieldPassword = buildMethod.createTextField("Password", 110, 160, 260, 30);
-		
 		labelPasswordError = buildMethod.createLabel("  wrong password, try again", 110, 180, 200, 30, 12);
 			labelPasswordError.setForeground(new Color (200, 0, 0));
 			labelPasswordError.setVisible(false);
@@ -57,6 +58,20 @@ public class mLogIn extends JFrame implements ActionListener{
 		setTitle("LogIn");
 		setContentPane(contentPane);
 		
+		
+		
+		SwingUtilities.invokeLater(new Runnable() {
+		    public void run() {
+		        textFieldUser.requestFocus();
+		    }
+		});
+
+
+		
+		textFieldUser.setBorder(BorderFactory.createMatteBorder(0, 10, 0, 0, buildMethod.cBtn));
+		textFieldPassword.setBorder(BorderFactory.createMatteBorder(0, 10, 0, 0, buildMethod.cBtn));
+		
+		
 		//Adding item's in frame
 		contentPane.add(btnClose);
 		contentPane.add(labelUser);
@@ -73,12 +88,33 @@ public class mLogIn extends JFrame implements ActionListener{
 			}
 		});
 		
+        // adding function click enter to send form 
+        textFieldPassword.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                btnSendActionPerformed(e);
+            }
+        });
+		
         btnSend.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
             	btnSendActionPerformed(evt);
             }
         });
 	    
+		
+        //
+        
+        addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                // Restaura o estado do frame para normal quando o foco é perdido
+                setState(JFrame.NORMAL);
+            }
+        });
+        
+        setAlwaysOnTop(true);
+        
+        //
 	}
 
 	private void btnSendActionPerformed(ActionEvent evt) {                                         
@@ -97,6 +133,8 @@ public class mLogIn extends JFrame implements ActionListener{
         this.setVisible(false);
         mAdmin.setVisible(true);
         mainFrame.dispose();
+        
+        
 	    
 	} 
 	

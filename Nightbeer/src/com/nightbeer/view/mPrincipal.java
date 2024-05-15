@@ -9,12 +9,6 @@ import com.nightbeer.dao.dados;
 
 public class mPrincipal extends JFrame implements ActionListener{
 	
-	private int x;
-	private int y;
-	private int normalWidth;
-	private int normalHeight;
-	private boolean maximized = false;
-	
 	private JPanel contentPane;
 	
 	private JButton btnExit;
@@ -26,9 +20,22 @@ public class mPrincipal extends JFrame implements ActionListener{
 	
 	private JPanel panelBtn1;
 	private JPanel panelBtn2;
-	private JPanel panelBtnMain;
+	private JPanel panelNavBarContainerPrimary;
+	private JPanel panelNavBarContainerSecond;
 	private JPanel panelNavbar;
 	
+	//
+	// Images
+	
+	// Logo
+	private JLabel iconLogoField;
+	private ImageIcon iconLogoImage;
+	
+	// User
+	private JLabel iconUserField;
+	private ImageIcon iconUserImage;
+
+		
 	
 	Build buildMethod = new Build();
 	
@@ -45,6 +52,7 @@ public class mPrincipal extends JFrame implements ActionListener{
 		});
 	}
 
+	// Main Menu
 	public mPrincipal() {
 		//
 		// JPanel Main
@@ -60,16 +68,35 @@ public class mPrincipal extends JFrame implements ActionListener{
         
 		setContentPane(contentPane);
 		
-		// NavBar Panel
-		containerNavBar();
-		
-
 		movTela();
-	}
+		
+		
+		// NavBar Panel
+		mPrincipalContainerNavBar();
+		
+		// blocking menu 
+		mPrincipalBlocking();
+		
+		// Search bar Panel
+		mPrincipalSearchBar();
 
+		
+	}
+	
+	// Create icon for label's and button's
+	public void createIcon() {
+		iconLogoImage = buildMethod.createImage("../images/nightbeerIcon.jpg", 60, 60);
+		iconLogoField = new JLabel(iconLogoImage);
+		
+		iconUserImage = buildMethod.createImage("../images/iconUserLogin.png", 30, 30);
+		iconUserField = new JLabel(iconUserImage);
+	}
+	
 	//
-	// NavBar
-	public void containerNavBar() {
+	// Element complete of NavBar
+	public void mPrincipalContainerNavBar() {
+		createIcon();
+		
 		
 	//
 	//Create and Modify items
@@ -77,8 +104,13 @@ public class mPrincipal extends JFrame implements ActionListener{
 			btnExit.setBackground(buildMethod.cBtnClose);		
 		btnMaximize = buildMethod.createButton("[ ]", 0, 0, 18, 15, 12);
 		btnMinimize = buildMethod.createButton("-", 0, 0, 18, 15, 12);
-		btnLogin = buildMethod.createButton("Y", 0, 0, 40, 40, 14);
+		btnLogin = buildMethod.createButton("", 0, 0, 40, 40, 14);
+			btnLogin.setBackground(buildMethod.cBackground);
+			btnLogin.setIcon(iconUserImage);
 
+	//
+	// Creating title to navBar
+		
 		labelSystemTitle = buildMethod.createLabel("  Nightbeer", 600, 30, 22, 0, 14);
 			labelSystemTitle.setHorizontalAlignment(SwingConstants.LEFT);
 			labelSystemTitle.setBackground(buildMethod.cBackground);
@@ -96,19 +128,19 @@ public class mPrincipal extends JFrame implements ActionListener{
 		// Function to the maximize the window
 		btnMaximize.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(maximized) {
+				if(buildMethod.maximized) {
 					setExtendedState(JFrame.NORMAL);
-	                setSize(normalWidth, normalHeight);
-					maximized = false;
+	                setSize(buildMethod.normalWidth, buildMethod.normalHeight);
+	                buildMethod.maximized = false;
 				}else {
-					normalWidth = getWidth();
-	                normalHeight = getHeight();
+					buildMethod.normalWidth = getWidth();
+					buildMethod.normalHeight = getHeight();
 	                    
 	                GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 	                Rectangle bounds = env.getMaximumWindowBounds();
 	                setBounds(bounds);
 	                    
-	                maximized = true;
+	                buildMethod.maximized = true;
 				}
 			}
 		});
@@ -128,6 +160,7 @@ public class mPrincipal extends JFrame implements ActionListener{
 			     
 			}
 		});
+		
 
 		
 	//
@@ -143,10 +176,15 @@ public class mPrincipal extends JFrame implements ActionListener{
 			panelBtn2.setLayout(new FlowLayout()); 
 			panelBtn2.setBackground(buildMethod.cBackground);
 		
-		// Main containers	
-		panelBtnMain = new JPanel();
-			panelBtnMain.setLayout(new GridLayout(1, 2)); 
-			panelBtnMain.setBackground(buildMethod.cBackground);
+		// Primary containers	
+		panelNavBarContainerPrimary = new JPanel();
+			panelNavBarContainerPrimary.setLayout(new GridLayout(1, 2));
+			panelNavBarContainerPrimary.setBackground(buildMethod.cBackground);			
+					
+		// Second containers	
+		panelNavBarContainerSecond = new JPanel();
+			panelNavBarContainerSecond.setLayout(new GridLayout(1, 2)); 
+			panelNavBarContainerSecond.setBackground(buildMethod.cBackground);
 		
 		// Container that goes to the main Panel
 		panelNavbar = new JPanel();
@@ -163,50 +201,75 @@ public class mPrincipal extends JFrame implements ActionListener{
 		panelBtn1.add(btnExit);
 		panelBtn2.add(btnLogin);
 		
-		// containers in main container
-		panelBtnMain.add(panelBtn2);
-		panelBtnMain.add(panelBtn1);
 			
-		// Title label to the left
-		panelNavbar.add(labelSystemTitle, BorderLayout.WEST);
+		// Primary container in label to the left
+		panelNavBarContainerPrimary.add(iconLogoField, BorderLayout.WEST);
+		panelNavBarContainerPrimary.add(labelSystemTitle, BorderLayout.EAST);
+		
+		// containers in Second container
+		panelNavBarContainerSecond.add(panelBtn2);
+		panelNavBarContainerSecond.add(panelBtn1);
 			
-		// Main container to the right
-		panelNavbar.add(panelBtnMain, BorderLayout.EAST);
+		// Second container to the right
+		panelNavbar.add(panelNavBarContainerPrimary, BorderLayout.WEST);
+		panelNavbar.add(panelNavBarContainerSecond, BorderLayout.EAST);
 			
 		// Adding all containers in main Panel
 		contentPane.add(panelNavbar, BorderLayout.PAGE_START);
 	
 	}
 	
+	//
+	// Main organization layout
+	public void mPrincipalBlocking() {
+		JPanel panelContainerPrimary = new JPanel();
+		panelContainerPrimary.setLayout(new GridLayout(1, 2));
+		panelContainerPrimary.setBackground(buildMethod.cBtnClose);
+		
+		contentPane.add(panelContainerPrimary);
+	}
+	
+	
+	//
+	// Element incomplete of SearchBar
+	public void mPrincipalSearchBar() {
+		JPanel panelMainSearchBar = new JPanel();
+		panelMainSearchBar.setLayout(new GridLayout(1 , 3));
+		panelMainSearchBar.setBackground(buildMethod.cBtnClose);
+		
+//		contentPane.add(panelMainSearchBar);
+	}
+	
+	
+	
 	public void actionPerformed(ActionEvent e) {
 		
 	}
 	
-	// method to moving the screen
-    public void movTela( ) {
+	// method to move screen
+    public void movTela() {
 		contentPane.addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseDragged(MouseEvent e) {
-				if(maximized) {
+				if(buildMethod.maximized) {
                     setExtendedState(JFrame.NORMAL);
-                    setSize(normalWidth, normalHeight);
-					maximized = false;
-					setLocation(e.getXOnScreen() -x, e.getYOnScreen() -y);
+                    setSize(buildMethod.normalWidth, buildMethod.normalHeight);
+                    buildMethod.maximized = false;
+					setLocation(e.getXOnScreen() -buildMethod.x, e.getYOnScreen() -buildMethod.y);
 				} else {
-					setLocation(e.getXOnScreen() -x, e.getYOnScreen() -y);
+					setLocation(e.getXOnScreen() -buildMethod.x, e.getYOnScreen() -buildMethod.y);
 				}
 			}
 		});
 		contentPane.addMouseListener(new MouseAdapter() {
 			public void mousePressed(MouseEvent e) {
-				x = e.getX();
-				y = e.getY();
+				buildMethod.x = e.getX();
+				buildMethod.y = e.getY();
 				
 ;				}
 		});
 		
 	}
-	
-    
+ 
     // method to close Main menu
     public void closeMPrincipal() {
         dispose();

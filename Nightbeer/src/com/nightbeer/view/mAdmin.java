@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,13 +28,33 @@ import com.nightbeer.dao.dados;
 public class mAdmin extends JFrame implements ActionListener{
 
 	private JPanel contentPane;
-	
-	public int x;
-	public int y;
-	public int normalWidth;
-	public int normalHeight;
-	public boolean maximized = false;
 
+	private JButton btnExit;
+	private JButton btnMaximize;
+	private JButton btnMinimize;
+	private JButton btnBackToMain;
+	
+	private JLabel labelSystemTitle;
+	
+	private JPanel panelBtn1;
+	private JPanel panelBtn2;
+	private JPanel panelNavBarContainerPrimary;
+	private JPanel panelNavBarContainerSecond;
+	private JPanel panelNavbar;
+	
+	//
+	// Images
+	
+	// Logo
+	private JLabel iconLogoField;
+	private ImageIcon iconLogoImage;
+	
+	// go back
+	private JLabel iconBackField;
+	private ImageIcon iconBackImage;
+	
+	
+	// Building classes
 	Build buildMethod = new Build();
 	mPrincipal mPrincipal = new mPrincipal();
 	
@@ -50,26 +71,9 @@ public class mAdmin extends JFrame implements ActionListener{
 		});
 	}
 
-	/**
-	 * Create the frame.
-	 */
+	// Main Menu
 	public mAdmin() {
 		//
-		
-		//Create and Modify items
-		JButton btnExit = buildMethod.createButton("X", 0, 0, 18, 15, 14); 
-			btnExit.setBackground(buildMethod.cBtnClose);	
-		
-		JButton btnMaximize = buildMethod.createButton("[ ]", 0, 0, 18, 15, 12);
-			
-		JButton btnMinimize = buildMethod.createButton("-", 0, 0, 18, 15, 12);
-		
-		JButton btnBackToMain = buildMethod.createButton("Y", 0, 0, 40, 40, 14);
-
-		JLabel labelSystemTitle = buildMethod.createLabel("  Nightbeer Config", 600, 30, 22, 0, 14);
-		labelSystemTitle.setHorizontalAlignment(SwingConstants.LEFT);
-		labelSystemTitle.setBackground(buildMethod.cBackground);
-
 		//JPanel Main
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setBounds(100, 100, 960, 560);
@@ -84,90 +88,145 @@ public class mAdmin extends JFrame implements ActionListener{
 		
 		
 		setContentPane(contentPane);
-		
 
-		
-		
-		//Adding function to item
-		btnExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				dispose();	
-			}
-		});
-		
-		btnMaximize.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(maximized) {
-                    setExtendedState(JFrame.NORMAL);
-                    setSize(normalWidth, normalHeight);
-					maximized = false;
-				}else {
-                    normalWidth = getWidth();
-                    normalHeight = getHeight();
-                    
-                    GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                    Rectangle bounds = env.getMaximumWindowBounds();
-                    setBounds(bounds);
-                    
-                    maximized = true;
-				}
-			}
-		});
-		
-		btnMinimize.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setExtendedState(JFrame.ICONIFIED);
-			}
-		});
-		
-		btnBackToMain.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				mPrincipal.setVisible(true);
-				setVisible(false);
-				
-				
-				
-			}
-		});
-
-		
-		// Add item in JPanel button
-		JPanel panelBtn1 = new JPanel();
-		panelBtn1.setLayout(new FlowLayout()); 
-		panelBtn1.setBackground(buildMethod.cBackground);
-			panelBtn1.add(btnMinimize);
-			panelBtn1.add(btnMaximize);
-			panelBtn1.add(btnExit);
-		
-		JPanel panelBtn2 = new JPanel();
-		panelBtn2.setLayout(new FlowLayout()); 
-		panelBtn2.setBackground(buildMethod.cBackground);
-			panelBtn2.add(btnBackToMain);
-		
-		JPanel panelBtnMain = new JPanel();
-		panelBtnMain.setLayout(new GridLayout(1, 2)); 
-		panelBtnMain.setBackground(buildMethod.cBackground);
-			panelBtnMain.add(panelBtn2);
-			panelBtnMain.add(panelBtn1);
-		
-		contentPane.add(panelBtnMain, BorderLayout.EAST);		
-		JPanel panelNavbar = new JPanel();
-		panelNavbar.setLayout(new BorderLayout()); // Use BorderLayout
-		panelNavbar.setBackground(buildMethod.cBackground);
-		panelNavbar.setPreferredSize(new Dimension(30, 50));
-
-		panelNavbar.add(labelSystemTitle, BorderLayout.WEST);
-
-		panelNavbar.add(panelBtnMain, BorderLayout.EAST);
-
-		contentPane.add(panelNavbar, BorderLayout.PAGE_START);
-
+		//NarBar
+		mAdminContainerNavBar();
 		movTela();
-		
 		
 		
 	}
 	
+	// Create icon for label's and button's
+	public void createIcon() {
+		iconLogoImage = buildMethod.createImage("../images/nightbeerIcon.jpg", 60, 60);
+		iconLogoField = new JLabel(iconLogoImage);
+		
+		iconBackImage = buildMethod.createImage("../images/iconGoBack.png", 30, 30);
+		iconBackField = new JLabel(iconBackImage);
+	}
+	
+	// element complete of NavBar
+	public void mAdminContainerNavBar() {
+		createIcon();
+		
+		
+	//
+	//Create and Modify items
+		btnExit = buildMethod.createButton("X", 0, 0, 18, 15, 14); 
+			btnExit.setBackground(buildMethod.cBtnClose);		
+		btnMaximize = buildMethod.createButton("[ ]", 0, 0, 18, 15, 12);
+		btnMinimize = buildMethod.createButton("-", 0, 0, 18, 15, 12);
+		btnBackToMain = buildMethod.createButton("", 0, 0, 40, 40, 14);
+			btnBackToMain.setBackground(buildMethod.cBackground);
+			btnBackToMain.setIcon(iconBackImage);
+
+	//
+	// Creatingtitle to navBar
+		labelSystemTitle = buildMethod.createLabel("  Nightbeer", 600, 30, 22, 0, 14);
+			labelSystemTitle.setHorizontalAlignment(SwingConstants.LEFT);
+			labelSystemTitle.setBackground(buildMethod.cBackground);
+			
+	//
+	// Adding function to buttons	
+			
+		// Function to the close the window
+			btnExit.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					dispose();	
+				}
+			});
+				
+		// Function to the maximize the window
+			btnMaximize.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if(buildMethod.maximized) {
+						setExtendedState(JFrame.NORMAL);
+			            setSize(buildMethod.normalWidth, buildMethod.normalHeight);
+			            buildMethod.maximized = false;
+					} else {
+						buildMethod.normalWidth = getWidth();
+						buildMethod.normalHeight = getHeight();
+			                    
+			            GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			            Rectangle bounds = env.getMaximumWindowBounds();
+			            setBounds(bounds);
+			                    
+			            buildMethod.maximized = true;
+					}
+				}
+			});
+				
+		// Function to the minimize the window
+			btnMinimize.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					setExtendedState(JFrame.ICONIFIED);
+				}
+			});
+		
+		// Function to back the principal menu	
+			btnBackToMain.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					mPrincipal.setVisible(true);
+					setVisible(false);
+				}
+			});				
+	
+	//
+	// Creating and configuration panel for the items
+				
+		// Simple containers
+			panelBtn1 = new JPanel();
+				panelBtn1.setLayout(new FlowLayout()); 
+				panelBtn1.setBackground(buildMethod.cBackground);
+					
+		// Simple containers	
+			panelBtn2 = new JPanel();
+				panelBtn2.setLayout(new FlowLayout()); 
+				panelBtn2.setBackground(buildMethod.cBackground);
+				
+		// Primary containers	
+			panelNavBarContainerPrimary = new JPanel();
+				panelNavBarContainerPrimary.setLayout(new GridLayout(1, 2));
+				panelNavBarContainerPrimary.setBackground(buildMethod.cBackground);			
+							
+		// Second containers	
+			panelNavBarContainerSecond = new JPanel();
+				panelNavBarContainerSecond.setLayout(new GridLayout(1, 2)); 
+				panelNavBarContainerSecond.setBackground(buildMethod.cBackground);
+				
+		// Container that goes to the main Panel
+			panelNavbar = new JPanel();
+				panelNavbar.setLayout(new BorderLayout()); // Use BorderLayout
+				panelNavbar.setBackground(buildMethod.cBackground);
+				panelNavbar.setPreferredSize(new Dimension(30, 50));
+
+	//
+	// Adding item's to new painel's
+					
+		// simple items in containers
+			panelBtn1.add(btnMinimize);
+			panelBtn1.add(btnMaximize);
+			panelBtn1.add(btnExit);
+			panelBtn2.add(btnBackToMain);
+				
+					
+		// Primary container in label to the left
+			panelNavBarContainerPrimary.add(iconLogoField, BorderLayout.WEST);
+			panelNavBarContainerPrimary.add(labelSystemTitle, BorderLayout.EAST);
+				
+		// containers in Second container
+			panelNavBarContainerSecond.add(panelBtn2);
+			panelNavBarContainerSecond.add(panelBtn1);
+					
+		// Second container to the right
+			panelNavbar.add(panelNavBarContainerPrimary, BorderLayout.WEST);
+			panelNavbar.add(panelNavBarContainerSecond, BorderLayout.EAST);
+					
+		// Adding all containers in main Panel
+			contentPane.add(panelNavbar, BorderLayout.PAGE_START);
+					
+
+	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -175,6 +234,7 @@ public class mAdmin extends JFrame implements ActionListener{
 		
 	}
 	
+	// method to mov screen
     public void movTela() {
 		contentPane.addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseDragged(MouseEvent e) {
@@ -197,6 +257,5 @@ public class mAdmin extends JFrame implements ActionListener{
 		});
 		
 	}
-	
 
 }

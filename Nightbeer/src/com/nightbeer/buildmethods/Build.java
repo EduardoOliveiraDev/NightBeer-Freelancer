@@ -69,9 +69,17 @@ public class Build extends JFrame implements ActionListener{
 	}
 
     //
-    //
-
-
+    // Image
+	public ImageIcon createImage(String locate, int width, int height) {
+		ImageIcon icon = new ImageIcon(getClass().getResource(locate));
+		
+		Image image = icon.getImage();
+		
+		Image newImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+		ImageIcon newIcon = new ImageIcon(newImage);
+		
+		return newIcon;
+	}
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
