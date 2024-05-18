@@ -12,11 +12,12 @@ public class Build extends JFrame implements ActionListener{
 	public Color cText = new Color(255, 255, 255);
 	public Color cLine = new Color(0, 0, 0);
 	
-	public int x;
-	public int y;
-	public int normalWidth;
-	public int normalHeight;
-	public boolean maximized = false;
+    private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    public int widthScreen = (int) screenSize.getWidth();
+    public int heightScreen = (int) screenSize.getHeight();
+	
+    public static GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+    public static Rectangle bounds = env.getMaximumWindowBounds();
     
     //
     // create build's method's
@@ -33,7 +34,7 @@ public class Build extends JFrame implements ActionListener{
 		jButton.setBackground(cBtn);
 		jButton.setBorder(null);
 		jButton.setBounds(x, y, width, height);
-		jButton.setPreferredSize(new Dimension(width, height));
+		jButton.setPreferredSize(createResponsive(width, height));
 		
 		return jButton;
 	}
@@ -80,6 +81,14 @@ public class Build extends JFrame implements ActionListener{
 		
 		return newIcon;
 	}
+	
+	//
+	// Responsive
+    public Dimension createResponsive(double widthScreenPercentual, double heightScreenPercentual) {
+        int widthScreen = (int) (screenSize.width * (widthScreenPercentual/100));
+        int heightScreen = (int) (screenSize.height * (heightScreenPercentual/100));
+        return new Dimension(widthScreen, heightScreen);
+    }
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {

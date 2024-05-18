@@ -132,6 +132,7 @@ public class mLogIn extends JFrame implements ActionListener{
         mAdmin mAdmin = new mAdmin();
         this.setVisible(false);
         mAdmin.setVisible(true);
+        mAdmin.setBounds(buildMethod.bounds);
         mainFrame.dispose();
         
         

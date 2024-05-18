@@ -30,7 +30,6 @@ public class mAdmin extends JFrame implements ActionListener{
 	private JPanel contentPane;
 
 	private JButton btnExit;
-	private JButton btnMaximize;
 	private JButton btnMinimize;
 	private JButton btnBackToMain;
 	
@@ -63,6 +62,7 @@ public class mAdmin extends JFrame implements ActionListener{
 			public void run() {
 				try {
 					mAdmin frame = new mAdmin();
+					frame.setBounds(Build.bounds);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -91,7 +91,6 @@ public class mAdmin extends JFrame implements ActionListener{
 
 		//NarBar
 		mAdminContainerNavBar();
-		movTela();
 		
 		
 	}
@@ -114,14 +113,13 @@ public class mAdmin extends JFrame implements ActionListener{
 	//Create and Modify items
 		btnExit = buildMethod.createButton("X", 0, 0, 18, 15, 14); 
 			btnExit.setBackground(buildMethod.cBtnClose);		
-		btnMaximize = buildMethod.createButton("[ ]", 0, 0, 18, 15, 12);
 		btnMinimize = buildMethod.createButton("-", 0, 0, 18, 15, 12);
 		btnBackToMain = buildMethod.createButton("", 0, 0, 40, 40, 14);
 			btnBackToMain.setBackground(buildMethod.cBackground);
 			btnBackToMain.setIcon(iconBackImage);
 
 	//
-	// Creatingtitle to navBar
+	// Creating title to navBar
 		labelSystemTitle = buildMethod.createLabel("  Nightbeer", 600, 30, 22, 0, 14);
 			labelSystemTitle.setHorizontalAlignment(SwingConstants.LEFT);
 			labelSystemTitle.setBackground(buildMethod.cBackground);
@@ -135,27 +133,7 @@ public class mAdmin extends JFrame implements ActionListener{
 					dispose();	
 				}
 			});
-				
-		// Function to the maximize the window
-			btnMaximize.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					if(buildMethod.maximized) {
-						setExtendedState(JFrame.NORMAL);
-			            setSize(buildMethod.normalWidth, buildMethod.normalHeight);
-			            buildMethod.maximized = false;
-					} else {
-						buildMethod.normalWidth = getWidth();
-						buildMethod.normalHeight = getHeight();
-			                    
-			            GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			            Rectangle bounds = env.getMaximumWindowBounds();
-			            setBounds(bounds);
-			                    
-			            buildMethod.maximized = true;
-					}
-				}
-			});
-				
+								
 		// Function to the minimize the window
 			btnMinimize.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -167,6 +145,7 @@ public class mAdmin extends JFrame implements ActionListener{
 			btnBackToMain.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					mPrincipal.setVisible(true);
+					mPrincipal.setBounds(buildMethod.bounds);
 					setVisible(false);
 				}
 			});				
@@ -205,7 +184,6 @@ public class mAdmin extends JFrame implements ActionListener{
 					
 		// simple items in containers
 			panelBtn1.add(btnMinimize);
-			panelBtn1.add(btnMaximize);
 			panelBtn1.add(btnExit);
 			panelBtn2.add(btnBackToMain);
 				
@@ -232,30 +210,7 @@ public class mAdmin extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	// method to mov screen
-    public void movTela() {
-		contentPane.addMouseMotionListener(new MouseMotionAdapter() {
-			public void mouseDragged(MouseEvent e) {
-				if(buildMethod.maximized) {
-                    setExtendedState(JFrame.NORMAL);
-                    setSize(buildMethod.normalWidth, buildMethod.normalHeight);
-                    buildMethod.maximized = false;
-					setLocation(e.getXOnScreen() -buildMethod.x, e.getYOnScreen() -buildMethod.y);
-				} else {
-					setLocation(e.getXOnScreen() -buildMethod.x, e.getYOnScreen() -buildMethod.y);
-				}
-			}
-		});
-		contentPane.addMouseListener(new MouseAdapter() {
-			public void mousePressed(MouseEvent e) {
-				buildMethod.x = e.getX();
-				buildMethod.y = e.getY();
-				
-;				}
-		});
-		
+			
 	}
 
 }
