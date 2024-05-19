@@ -3,12 +3,11 @@ package com.nightbeer.view;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.*;
 
 import com.nightbeer.dao.dados;
 import com.nightbeer.buildmethods.Build;
 
+@SuppressWarnings("serial")
 public class mLogIn extends JFrame implements ActionListener{
 
 	private JPanel contentPane;
@@ -29,7 +28,7 @@ public class mLogIn extends JFrame implements ActionListener{
 	}
 
 	public mLogIn(mPrincipal mainFrame) {
-		this.mainFrame = mainFrame;
+		mLogIn.mainFrame = mainFrame;
 		
 		//Create item's
 		btnClose = buildMethod.createButton("X", 444, 0, 36, 30, 16);
@@ -107,7 +106,6 @@ public class mLogIn extends JFrame implements ActionListener{
         addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(FocusEvent e) {
-                // Restaura o estado do frame para normal quando o foco é perdido
                 setState(JFrame.NORMAL);
             }
         });
@@ -132,7 +130,7 @@ public class mLogIn extends JFrame implements ActionListener{
         mAdmin mAdmin = new mAdmin();
         this.setVisible(false);
         mAdmin.setVisible(true);
-        mAdmin.setBounds(buildMethod.bounds);
+        mAdmin.setBounds(Build.bounds);
         mainFrame.dispose();
         
         

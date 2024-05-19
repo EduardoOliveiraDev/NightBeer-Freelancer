@@ -5,14 +5,13 @@ import java.awt.event.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
+import javax.swing.table.*;
 
 import com.nightbeer.buildmethods.Build;
 import com.nightbeer.dao.itemsDAO;
 import com.nightbeer.model.items;
 
+@SuppressWarnings("serial")
 public class mPrincipal extends JFrame{
 	
 	private JPanel contentPane = new JPanel();;
@@ -22,6 +21,11 @@ public class mPrincipal extends JFrame{
 	private JButton buttonLogin = buildMethod.createButton("", 0, 0, 5, 5, 14);
 	private JButton buttonMinimize = buildMethod.createButton("-", 0, 0, 2, 2, 12);
 	private JButton buttonExit = buildMethod.createButton("X", 0, 0, 2, 2, 14); 
+	
+	private JTextField textFieldSearch = buildMethod.createTextField("", 0, 0, 40, 4);
+	private JComboBox<?> comboBoxType = buildMethod.createComboBox("", 0, 0, 10, 4);
+	private JComboBox<?> comboBoxBrand = buildMethod.createComboBox("", 0, 0, 10, 4);
+	
 	
     private JTable tabela;
     private DefaultTableModel dados;
@@ -41,10 +45,8 @@ public class mPrincipal extends JFrame{
     					
     			});
     		}
-    		System.out.println(lista);
     }
     
-	// Main Menu
 	public mPrincipal() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setPreferredSize(new Dimension(960, 560));
@@ -68,8 +70,7 @@ public class mPrincipal extends JFrame{
         pack();
         setLocationRelativeTo(null);
 	}
-
- 	
+	
 	public void containerNavBar() {
 		createIcon();
 	
@@ -105,6 +106,7 @@ public class mPrincipal extends JFrame{
 		JPanel painelNavBarWest = new JPanel();
 		painelNavBarWest.setLayout(new BorderLayout());
 		painelNavBarWest.add(iconLogoField, BorderLayout.WEST);
+		painelNavBarWest.setBackground(buildMethod.cBackground);
 		painelNavBarWest.add(labelNavBarTitle);
 		
 		JPanel painelNavBarEast = new JPanel();
@@ -116,7 +118,7 @@ public class mPrincipal extends JFrame{
 		
 		JPanel painelNavBar = new JPanel();
 			painelNavBar.setLayout(new BorderLayout());
-	//		painelNavBar.setBackground(buildMethod.cBackground);
+			painelNavBar.setBackground(buildMethod.cBackground);
 			painelNavBar.add(painelNavBarWest, BorderLayout.WEST);
 			painelNavBar.add(painelNavBarEast, BorderLayout.EAST);
 
@@ -127,14 +129,24 @@ public class mPrincipal extends JFrame{
 	}
 	
     public void containerCenter() {
+    	initSearch();
+    	
         JPanel containerCenter = new JPanel();
         containerCenter.setLayout(new BorderLayout());
         containerCenter.setPreferredSize(buildMethod.createResponsive(65, 100));
         
         JPanel containerSearch = new JPanel();
-        containerSearch.setLayout(new BorderLayout());
-        containerSearch.setBackground(buildMethod.cBtnClose);
+        containerSearch.setLayout(new BoxLayout(containerSearch, BoxLayout.Y_AXIS));
         containerSearch.setPreferredSize(buildMethod.createResponsive(100, 8));
+        
+        	containerSearch.add(Box.createVerticalGlue());
+            JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+            searchPanel.add(textFieldSearch);
+            searchPanel.add(comboBoxType);
+            searchPanel.add(comboBoxBrand);
+            containerSearch.add(searchPanel);
+            containerSearch.add(Box.createVerticalGlue());
+            containerCenter.add(containerSearch, BorderLayout.NORTH);
         
         JPanel containerTable = new JPanel();
         containerTable.setLayout(new BorderLayout());
@@ -157,9 +169,20 @@ public class mPrincipal extends JFrame{
     }
 	
     private void initSearch() {
- 
-    	
-    	
+        textFieldSearch.setBorder(BorderFactory.createMatteBorder(0, 10, 0, 10, buildMethod.cBtn));
+        textFieldSearch.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                textFieldSearchReleased(evt);
+            }
+        });
+        textFieldSearch.requestFocus();
+    }
+      
+    private void textFieldSearchReleased(KeyEvent evt) {
+        DefaultTableModel modelo = (DefaultTableModel) tabela.getModel();
+        TableRowSorter<DefaultTableModel> trs = new TableRowSorter<>(modelo);
+        tabela.setRowSorter(trs);
+        trs.setRowFilter(RowFilter.regexFilter("(?i)" + textFieldSearch.getText(), 0, 1, 2, 3));
     }
     
     private void initTable() {
@@ -170,8 +193,8 @@ public class mPrincipal extends JFrame{
             }
         };
         tabela = new JTable(dados);
+        tabela.setPreferredSize(buildMethod.createResponsive(20, 100));
         
-        TableColumnModel columnModel = tabela.getColumnModel();
         tabela.getTableHeader().setReorderingAllowed(false);
         
         for (int i = 0; i < tabela.getColumnCount(); i++) {
@@ -179,9 +202,6 @@ public class mPrincipal extends JFrame{
             column.setResizable(false);
         }
     }
-
-	
-    
 
     public void containerEast() {
 		
@@ -193,13 +213,12 @@ public class mPrincipal extends JFrame{
 		contentPane.add(containerEast, BorderLayout.EAST);
 	}
 
-	// Create icon for label's and button's
 	public void createIcon() {
 		iconLogoImage = buildMethod.createImage("../images/nightbeerIcon.jpg", 60, 60);
 		iconLogoField = new JLabel(iconLogoImage);
 		
 		iconUserImage = buildMethod.createImage("../images/iconUserLogin.png", 35, 35);
-		iconUserField = new JLabel(iconUserImage);
+		new JLabel(iconUserImage);
 	}
 
     // method to close Main menu
@@ -227,14 +246,13 @@ public class mPrincipal extends JFrame{
 	}
 
 
-	// Images
-	
-	// Logo
+	//
+	//
+	//
+	//
 	private JLabel iconLogoField;
 	private ImageIcon iconLogoImage;
 	
-	// User
-	private JLabel iconUserField;
 	private ImageIcon iconUserImage;
 	
 	

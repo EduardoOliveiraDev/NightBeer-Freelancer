@@ -24,7 +24,7 @@ public class itemsDAO {
 	public void saveItems(items obj) {
 		try {
 			
-			String sql = "insert into item (produto, tipo, marca, estoque, preco)"
+			String sql = "insert into items (produto, tipo, marca, estoque, preco)"
 					+ "values(?,?,?,?,?)";
 			
 			
@@ -48,6 +48,7 @@ public class itemsDAO {
 	}
 	
 	public items Search(String produto) {
+		listar();
 		try {
 			String sql = "select * from items where produto =?";
 			PreparedStatement stmt = conn.prepareStatement(sql);
@@ -63,6 +64,7 @@ public class itemsDAO {
 				obj.setPreco(rs.getDouble("preco"));
 				
 			}
+			
 			return obj;
 		} catch (SQLException e) {
 			JOptionPane.showMessageDialog(null, "erro ao buscar" +  e);

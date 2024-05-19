@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+@SuppressWarnings("serial")
 public class Build extends JFrame implements ActionListener{
 
 	public Color cBtnClose = new Color(232, 147, 244);
@@ -50,6 +51,7 @@ public class Build extends JFrame implements ActionListener{
         JTextField.setOpaque(true);
         JTextField.setBorder(null);
         JTextField.setBounds(x, y, width, height);
+        JTextField.setPreferredSize(createResponsive(width, height));
 
         return JTextField;
     }
@@ -65,9 +67,25 @@ public class Build extends JFrame implements ActionListener{
 		JLabel.setOpaque(true);
 		JLabel.setBorder(null);
 		JLabel.setBounds(x, y, width, height);
+		JLabel.setPreferredSize(createResponsive(width, height));
 		
 		return JLabel;
 	}
+	
+	//
+	// ComboBox
+    public JComboBox<?> createComboBox(String textField, int x, int y, int width, int height) {
+        JComboBox<?> jComboBox = new JComboBox<>();
+        jComboBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        jComboBox.setForeground(cText);
+        jComboBox.setBackground(cBtn);
+        jComboBox.setOpaque(true);
+        jComboBox.setBorder(null);
+        jComboBox.setBounds(x, y, width, height);
+        jComboBox.setPreferredSize(createResponsive(width, height));
+
+        return jComboBox;
+    }
 
     //
     // Image
