@@ -1,6 +1,6 @@
 package com.nightbeer.jdbc;
 
-import com.nightbeer.buildmethods.Build;
+import com.nightbeer.build.BuildMethods;
 import com.nightbeer.view.mPrincipal;
 import java.awt.HeadlessException;
 import javax.swing.JOptionPane;
@@ -12,7 +12,7 @@ public class testConnection {
         	
             new connectSQL().getConnect();
             mPrincipal Principal = new mPrincipal();
-            Principal.setBounds(Build.bounds);
+            Principal.setBounds(BuildMethods.bounds);
             Principal.setVisible(true);
             
         } catch (HeadlessException erro) {

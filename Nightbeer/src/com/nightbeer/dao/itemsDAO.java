@@ -15,25 +15,23 @@ import javax.swing.JOptionPane;
 
 public class itemsDAO {
 
-	private Connection conn;
+	private Connection connection;
 	
 	public itemsDAO() {
-		this.conn = new connectSQL().getConnect();	
+		this.connection = new connectSQL().getConnect();	
 	}
 	
-	public void saveItems(items obj) {
+	public void saveItems(items objeto) {
 		try {
-			
-			String sql = "insert into items (produto, tipo, marca, estoque, preco)"
-					+ "values(?,?,?,?,?)";
-			
-			
-			PreparedStatement stmt = conn.prepareStatement(sql);
-			stmt.setString(1, obj.getProduto());
-			stmt.setString(2, obj.getTipo());
-			stmt.setString(3, obj.getMarca());
-			stmt.setInt(4, obj.getEstoque());
-			stmt.setDouble(5, obj.getPreco());
+			String sql = "INSERT INTO items (produto, tipo, marca, estoque, preco)"
+					+ "VALUES(?,?,?,?,?)";
+
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			stmt.setString(1, objeto.getProduto());
+			stmt.setString(2, objeto.getTipo());
+			stmt.setString(3, objeto.getMarca());
+			stmt.setInt(4, objeto.getEstoque());
+			stmt.setDouble(5, objeto.getPreco());
 			
 			stmt.execute();
 			
@@ -47,37 +45,13 @@ public class itemsDAO {
 		
 	}
 	
-	public items Search(String produto) {
-		listar();
-		try {
-			String sql = "select * from items where produto =?";
-			PreparedStatement stmt = conn.prepareStatement(sql);
-			stmt.setString(1, produto);
-			ResultSet rs = stmt.executeQuery();
-			items obj = new items();
-			if (rs.next()) {
-				obj.setCodigo(rs.getInt("codigo"));
-				obj.setProduto(rs.getString("produto"));
-				obj.setTipo(rs.getString("tipo"));
-				obj.setMarca(rs.getString("marca"));
-				obj.setEstoque(rs.getInt("estoque"));
-				obj.setPreco(rs.getDouble("preco"));
-				
-			}
-			
-			return obj;
-		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(null, "erro ao buscar" +  e);
-		}
-		return null;
-	}
-	
 	public List<items>listar(){
+		// Set, Map e Hash (Java Util)
 		List<items> lista = new ArrayList<>();
 		
 		try {
-			String sql = "select * from items";
-			PreparedStatement stmt = conn.prepareStatement(sql);
+			String sql = "SELECT * FROM items";
+			PreparedStatement stmt = connection.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
 			
 			while(rs.next()) {
@@ -93,9 +67,11 @@ public class itemsDAO {
 			return lista;
 			
 		} catch (SQLException e) {
-			
+			// Retornar Exception - Crie uma bussines exception, jogando um erro personalizado. Pilha de execução 
 			JOptionPane.showMessageDialog(null, "Erro ao criar a lista" + e);
 		}
-		return null;
+		
+		// Retornar Exception
+		return lista;
 	}
 }

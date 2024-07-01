@@ -10,15 +10,16 @@ public class connectSQL {
     final private String JDBC_user = "root";
     final private String JDBC_password = "";
     
-    String querry = "SELECT * FROM items";
-    
     public Connection getConnect(){
         try {
         	Connection connectionSQL = DriverManager.getConnection(JDBC_url, JDBC_user, JDBC_password);     	
             return connectionSQL;
         } catch (Exception e) {            
             JOptionPane.showMessageDialog(null, "connection error " + e);
+//            BussinesException.ERROR(e.getm)
         }
+        
+        
         return null;
     }
 }
