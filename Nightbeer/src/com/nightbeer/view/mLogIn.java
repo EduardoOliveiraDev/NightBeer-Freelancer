@@ -13,6 +13,8 @@ public class mLogIn extends JFrame {
     private JPanel contentPane = new JPanel(new BorderLayout());
     BuildMethods buildMethod = new BuildMethods();
     BuildMenuLogin builder = new BuildMenuLogin();
+    
+	private static mPrincipal instance;
 
     public mLogIn() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -20,7 +22,7 @@ public class mLogIn extends JFrame {
         setUndecorated(true);
         setTitle("LogIn");
 
-        this.setPreferredSize(buildMethod.createResponsive(18, 24));
+        this.setPreferredSize(buildMethod.createResponsive(20, 24));
         JPanel loginPanel = builder.buildLoginPanel(this);
         contentPane.add(loginPanel);
 
@@ -29,6 +31,14 @@ public class mLogIn extends JFrame {
         setLocationRelativeTo(null);
     }
     
+	public static mPrincipal getInstance() {
+	    return instance;
+	}
+	
+	public JFrame getFrame() {
+	    return this;
+	}
+     
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
             try {

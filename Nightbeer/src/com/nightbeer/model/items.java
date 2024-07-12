@@ -2,16 +2,15 @@ package com.nightbeer.model;
 
 public class items {
 	
-	// INTEGER
+	// columns in table ITEMS
 	private int codigo;
 	private String produto;
 	private String tipo;
 	private String marca;
 	private int estoque;
-	// DOUBLE
 	private double preco;
 
-    public int getCodigo() {
+	public int getCodigo() {
         return codigo;
     }
 
@@ -59,4 +58,5 @@ public class items {
         this.preco = preco;
     }
 	
+    
 }

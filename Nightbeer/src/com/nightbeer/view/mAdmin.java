@@ -13,6 +13,7 @@ public class mAdmin extends JFrame{
 
 	private JPanel contentPane;
 	private BuildMAdmin buildMAdmin = new BuildMAdmin(); 
+	private BuildNavBar navBar = new BuildNavBar();
 	private static mAdmin instance;
    
 	public mAdmin() {
@@ -32,11 +33,23 @@ public class mAdmin extends JFrame{
             public void windowActivated(WindowEvent evt) {
                 buildMAdmin.listar();
             }
+            
         });
+        
+        navBar.addCloseButtonListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+            }
+        });
+        
+        navBar.addAcessButtonListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				navBar.replaceFunctionButton();
+			}
+		});
 	}
     
 	public void BuildingViewMadmin() {
-		BuildNavBar navBar = new BuildNavBar();
 		navBar.panelWest("  NightBeer Admin");
 		navBar.panelEast(navBar.iconBack);
 		navBar.getFrame(this);
