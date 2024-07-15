@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 
 import javax.swing.*;
 
@@ -20,7 +21,7 @@ public class mPrincipal extends JFrame{
 	private JPanel contentPane;
 	private static mPrincipal instance;
 	
-	public mPrincipal() {
+	public mPrincipal() throws SQLException {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("NightBeer System");
         setResizable(false);
@@ -32,13 +33,13 @@ public class mPrincipal extends JFrame{
         
         addWindowListener(new WindowAdapter() {
             public void windowActivated(WindowEvent evt) {
-                buildMPrincipal.listar();
+                buildMPrincipal.listItems();
             }
         });
 
         addWindowListener(new WindowAdapter() {
             public void windowActivated(WindowEvent evt) {
-                buildMPrincipal.listar();
+                buildMPrincipal.listItems();
             }
 
             public void windowClosing(WindowEvent e) {
@@ -56,17 +57,22 @@ public class mPrincipal extends JFrame{
         navBar.addAcessButtonListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				buildMPrincipal.returnItemsToStock();
-				navBar.replaceFunctionButton();
+				try {
+					navBar.replaceFunctionButton();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
         
 		instance = this;
 	}
 	
-	public void BuildingViewMPrincipal() {    
+	public void BuildingViewMPrincipal() throws SQLException {    
 		// NavBar
-		navBar.panelWest("  NightBeer Lounge");
-		navBar.panelEast(navBar.iconUser);
+		navBar.panelLeftIconAndText("  NightBeer Lounge");
+		navBar.panelRightButtons(navBar.iconUser);
 		navBar.getFrame(this);
 	    contentPane.add(navBar.containerNavBar(), BorderLayout.NORTH);
 	    

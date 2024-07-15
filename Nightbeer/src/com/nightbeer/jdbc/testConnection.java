@@ -3,14 +3,16 @@ package com.nightbeer.jdbc;
 import com.nightbeer.build.BuildMethods;
 import com.nightbeer.view.mPrincipal;
 import java.awt.HeadlessException;
+import java.sql.SQLException;
+
 import javax.swing.JOptionPane;
 
 public class testConnection {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         try {
         	
-            new connectSQL().getConnect();
+            new connectionSQL().getConnect();
             mPrincipal Principal = new mPrincipal();
             Principal.setBounds(BuildMethods.bounds);
             Principal.setVisible(true);

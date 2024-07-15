@@ -2,6 +2,7 @@ package com.nightbeer.build;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -52,7 +53,7 @@ public class BuildMPrincipal {
     private JLabel labelTextEstoque;
     private JLabel labelTextPreco;
     private JLabel labelTextQuantidade;
-    private JLabel labelInfoItemCodigo;
+    private JTextField textFieldInfoItemCodigo;
     private JLabel labelInfoItemProduto;
     private JLabel labelInfoItemTipo;
     private JLabel labelInfoItemMarca;
@@ -80,12 +81,7 @@ public class BuildMPrincipal {
     private List<Object[]> itemList = new ArrayList<>();
     private JFrame frame;
     
-    private DefaultTableModel tabelaBuyModel; // Modelo da tabela tabelaBuy
-    
     public BuildMPrincipal() {
-        frame = new JFrame();
-        dadosBuy = new DefaultTableModel(new Object[]{"Código", "Descrição", "Quantidade", "Preço"}, 0);
-
         returnItemsTimer = new Timer(600000, e -> { // 600.000 = 10 minutos
             returnItemsToStock();
             refreshTotalPrice(); 
@@ -93,11 +89,9 @@ public class BuildMPrincipal {
         });
         returnItemsTimer.setRepeats(false);
 
-        buildPreviusBuy.containerMain(frame);
-        buildPreviusBuy = new BuildPreviusBuy();
     }
     
-    public void listar() {
+    public void listItems() {
         itemsDAO dao = new itemsDAO();
         List<items> lista = dao.listar();
         dados.setNumRows(0);
@@ -137,11 +131,11 @@ public class BuildMPrincipal {
         labelTotalBuyPrice.setText(String.format("R$ " + sumTotalPriceOfItems));
     }
     
-	public JPanel containerCenter() {
+	public JPanel containerCenter() throws SQLException {
         JPanel containerCenter = buildMethod.createPanel(65, 100, new BorderLayout(), colorBackgroundWhite, 0,0,0,25);
         
         containerTable();
-        containerInfoItem();       
+        containerLabelsInfoItem();       
         
         containerCenter.add(new BuildSearchBar(tabela).containerSearch(), BorderLayout.NORTH);
         containerCenter.add(containerTable, BorderLayout.CENTER);
@@ -187,7 +181,7 @@ public class BuildMPrincipal {
                         Object Estoque = tabela.getValueAt(selectedRow, 4);
                         Object Preco = tabela.getValueAt(selectedRow, 5);
                         
-                        labelInfoItemCodigo.setText(Codigo.toString());
+                        textFieldInfoItemCodigo.setText(Codigo.toString());
                         labelInfoItemProduto.setText(Produto.toString());
                         labelInfoItemTipo.setText(Tipo.toString());
                         labelInfoItemMarca.setText(Marca.toString());
@@ -208,7 +202,7 @@ public class BuildMPrincipal {
 		return containerTable;
 	}
 	
-	public JPanel containerInfoItem() {
+	public JPanel containerLabelsInfoItem() {
         containerInfoItem = buildMethod.createPanel(100, 26, new BorderLayout(), colorBackgroundWhite, 25,0,25,0);
 
         JPanel containerInfoItemCenter = buildMethod.createPanel(30, 26, new FlowLayout(FlowLayout.LEFT), colorBackgroundWhite, 0,0,0,0);
@@ -223,12 +217,18 @@ public class BuildMPrincipal {
         labelTextQuantidade = buildMethod.createLabel("Quantidade", 6, 5, SwingConstants.RIGHT, colorTextBlack, colorBackgroundWhite, FontRobotoPlainSmall, 0,0,0,0);
         
         // Label to show items info
-        labelInfoItemCodigo = buildMethod.createLabel("", 10, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
+        textFieldInfoItemCodigo = buildMethod.createTextField("", 10, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         labelInfoItemProduto = buildMethod.createLabel("", 24.5, 4, SwingConstants.LEFT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,0,0,10);
         labelInfoItemTipo = buildMethod.createLabel("", 10, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         labelInfoItemMarca = buildMethod.createLabel("", 20, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         labelInfoItemEstoque = buildMethod.createLabel("", 10, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         labelInfoItemPreco = buildMethod.createLabel("", 10, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
+        
+        textFieldInfoItemCodigo.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                applyFilters();
+            }
+        });
         
         SpinnerInfoItemQuantidade = buildMethod.createSpinner(8, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall);
         SpinnerInfoItemQuantidade.setValue(1);
@@ -257,7 +257,7 @@ public class BuildMPrincipal {
         });
         
         containerInfoItemCenter.add(labelTextCodigo);
-        containerInfoItemCenter.add(labelInfoItemCodigo);
+        containerInfoItemCenter.add(textFieldInfoItemCodigo);
         containerInfoItemCenter.add(labelTextProduto);
         containerInfoItemCenter.add(labelInfoItemProduto);
         containerInfoItemCenter.add(labelTextTipo);
@@ -278,7 +278,7 @@ public class BuildMPrincipal {
         buttonAddingItemForTableBuy.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	addItemToCart();
-            	clear();
+            	clearItemInfoLabels();
             }
         });
         
@@ -287,7 +287,7 @@ public class BuildMPrincipal {
         buttonRemoveItemForTableBuy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				removeItemFromCart();
-				clear();
+				clearItemInfoLabels();
 			}
 		});
         
@@ -352,7 +352,7 @@ public class BuildMPrincipal {
                         Object Preco = tabelaBuy.getValueAt(selectedRow, 5);
                         Object Quantidade = tabelaBuy.getValueAt(selectedRow, 6);
                         
-                        labelInfoItemCodigo.setText(Codigo.toString());
+                        textFieldInfoItemCodigo.setText(Codigo.toString());
                         labelInfoItemProduto.setText(Produto.toString());
                         labelInfoItemTipo.setText(Tipo.toString());
                         labelInfoItemMarca.setText(Marca.toString());
@@ -473,6 +473,9 @@ public class BuildMPrincipal {
     }
     
     private void addItemToCart() {
+    	
+    	
+    	
         int selectedRow = tabela.getSelectedRow();
         if (selectedRow != -1) {
             Object codigo = tabela.getValueAt(selectedRow, 0);
@@ -532,9 +535,9 @@ public class BuildMPrincipal {
         }
     }
 
-    private void clear() {
+    private void clearItemInfoLabels() {
     	SpinnerInfoItemQuantidade.setValue(1);
-    	labelInfoItemCodigo.setText("");
+    	textFieldInfoItemCodigo.setText("");
         labelInfoItemProduto.setText("");
         labelInfoItemTipo.setText("");
         labelInfoItemMarca.setText("");
@@ -542,11 +545,60 @@ public class BuildMPrincipal {
         labelInfoItemPreco.setText("");
         
     }
+    
+    private void clearItems() {
+    	SpinnerInfoItemQuantidade.setValue(1);
+        labelInfoItemProduto.setText("");
+        labelInfoItemTipo.setText("");
+        labelInfoItemMarca.setText("");
+        labelInfoItemEstoque.setText("");
+        labelInfoItemPreco.setText("");
+        tabela.clearSelection();
+    }
 
     private void confirmarCompra() {
         int response = JOptionPane.showConfirmDialog(frame, "Você deseja confirmar a compra?", "Confirmar compra", JOptionPane.YES_OPTION);
         if (response == JOptionPane.YES_OPTION) {
             buttonPreviusBuy.setVisible(true);
         }
+    }
+
+    public void applyFilters() {
+    	itemsDAO dao = new itemsDAO();
+    	String codigoText = textFieldInfoItemCodigo.getText().trim();
+    	
+    	if (!codigoText.isEmpty()) {
+    	    try {
+    	        int codigo = Integer.parseInt(codigoText);
+    	        items item = dao.getItemById(codigo);
+    	        
+    	        if (item != null) {
+    	    	    for (int row = 0; row < tabela.getRowCount(); row++) {
+    	    	        int codigoNaTabela = (int) tabela.getValueAt(row, 0); 
+    	    	        
+    	    	        if (codigo == codigoNaTabela) {
+    	    	            tabela.setRowSelectionInterval(row, row);
+    	    	            tabela.scrollRectToVisible(tabela.getCellRect(row, 0, true)); 
+    	    	            return; 
+    	    	        }
+    	    	    }
+    	        } else {
+    	        	clearItems();
+    	        }
+    	    } catch (NumberFormatException | SQLException ex) {
+    	        handleException(ex);
+    	    }
+    	} else {
+    	    clearItemInfoLabels();
+    	}
+    	
+    	
+    	
+    }
+    
+    private void handleException(Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(mPrincipal.getInstance().getFrame(), "Ocorreu um erro ao processar a requisição.");
+        clearItemInfoLabels();
     }
 }

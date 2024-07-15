@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ import com.nightbeer.dao.brandsDAO;
 import com.nightbeer.dao.itemsDAO;
 import com.nightbeer.dao.typesDAO;
 import com.nightbeer.view.mAdmin;
+import com.nightbeer.view.mCreateTipoMarca;
 import com.nightbeer.view.mPrincipal;
 
 public class BuildCreateTipoMarca {
@@ -39,9 +41,8 @@ public class BuildCreateTipoMarca {
 	private JButton buttonClose;
 	private JButton buttonGoBack;
 
-	private JFrame thisFrameA = mAdmin.getInstance().getFrame();
 	
-	private JPanel containerCenter;
+	private JPanel containerMain;
 
 	private JPanel containerCenterWest;
 	private JLabel labelTextTypeSelectedTitle;
@@ -65,47 +66,47 @@ public class BuildCreateTipoMarca {
 	private JButton buttonBrandSave;
 	private JButton buttonBrandEdit;
  
-    public void listarTipos() {
+    public void listTypes() throws SQLException{
         typesDAO tDao = new typesDAO();
-        List<String> tipos = tDao.listarTipos(); 
+        List<String> tipos = tDao.listTypes(); 
         comboBoxTypes.removeAllItems(); 
         comboBoxTypes.addItem("");
         
         tipos.forEach(tipo -> comboBoxTypes.addItem(tipo)); 
     }
-    
-    public void listarMarcas() {
+     
+    public void listBrands() throws SQLException {
     	brandsDAO mDao = new brandsDAO();
-        List<String> marcas = mDao.listarMarcas(); 
+        List<String> marcas = mDao.listBrand(); 
         comboBoxBrand.removeAllItems(); 
         comboBoxBrand.addItem("");
         
         marcas.forEach(marca -> comboBoxBrand.addItem(marca)); 
     }
     
-    public void listarMarcasPorTipo(String tipo) {
+    public void listBrandsForTypes(String tipo) throws SQLException {
     	brandsDAO mDao = new brandsDAO();
-        List<String> marcas = mDao.listarMarcasPorTipo(tipo); 
+        List<String> marcas = mDao.listBrandsForTypes(tipo); 
         comboBoxBrand.removeAllItems(); 
         comboBoxBrand.addItem("");
         
         marcas.forEach(marca -> comboBoxBrand.addItem(marca)); 
     }
 	
-	public JPanel containerMain(JFrame frame) {
+	public JPanel contentPaneCreateTypesAndBrands(JFrame frame) throws SQLException {
         JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.setPreferredSize(buildMethod.createResponsive(40, 30));
         contentPane.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, colorTextBlack));
         
-        contentPane.add(containerNavbar(frame), BorderLayout.NORTH);
-        contentPane.add(containerCenter(), BorderLayout.CENTER);
+        contentPane.add(headerContainer(frame), BorderLayout.NORTH);
+        contentPane.add(mainContainer(), BorderLayout.CENTER);
         
-        listarMarcas();
-        listarTipos();
+        listBrands();
+        listTypes();
         return contentPane;
 	}
 	
-	public JPanel containerNavbar(JFrame frame) {
+	public JPanel headerContainer(JFrame frame) {
 		containerNavBar = buildMethod.createPanel(100, 5, new BorderLayout(), colorBackgroundWhite, 0,0,25,0);
 		buttonClose = buildMethod.createButton("X", 2.2, 2.5, SwingConstants.CENTER, colorTextWhite, colorButtonClose);
 		buttonClose.addActionListener(e -> frame.dispose());
@@ -120,14 +121,14 @@ public class BuildCreateTipoMarca {
 		return containerNavBar;
 	}
 	
-	public JPanel containerCenter() {
-		containerCenter = new JPanel(new GridLayout(1,2));
-		containerCenter.add(containerWest());
-		containerCenter.add(containerEast());
-		return containerCenter;
+	public JPanel mainContainer() {
+		containerMain = new JPanel(new GridLayout(1,2));
+		containerMain.add(containerTypes());
+		containerMain.add(containerBrands());
+		return containerMain;
 	}
 	
-	public JPanel containerWest() {
+	public JPanel containerTypes() {
 		containerCenterWest = buildMethod.createPanel(0, 0, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
 		
 		labelTextTypeSelectedTitle = buildMethod.createLabel("Selecione o tipo: ", 15, 2, SwingConstants.LEFT, colorTextBlack, colorBackgroundWhite, FontRobotoPlainSmall, 0, 0, 0, 0);
@@ -138,20 +139,28 @@ public class BuildCreateTipoMarca {
 		textfieldType.setEnabled(false);
 		
 		containerButtonsTypes = buildMethod.createPanel(15, 4, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
-		buttonTypeNew = buildMethod.createButton("New", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
-		buttonTypeDel = buildMethod.createButton("Del", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
-		buttonTypeSave = buildMethod.createButton("Save", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
+		buttonTypeNew = buildMethod.createButton("Novo", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
+		buttonTypeDel = buildMethod.createButton("Deletar", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
+		buttonTypeSave = buildMethod.createButton("Salvar", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
 		buttonTypeSave.setEnabled(false);
-		buttonTypeEdit = buildMethod.createButton("Edit", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
+		buttonTypeEdit = buildMethod.createButton("Editar", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
 
 		comboBoxTypes.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String selectedTipo = (String) comboBoxTypes.getSelectedItem();
                 textfieldType.setText(selectedTipo);
                 if (selectedTipo != null && !selectedTipo.isEmpty()) {
-                    listarMarcasPorTipo(selectedTipo);
+                    try {
+						listBrandsForTypes(selectedTipo);
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
                 } else {
-                    listarMarcas();
+                    try {
+						listBrands();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
                 } 
             }
         });
@@ -172,7 +181,7 @@ public class BuildCreateTipoMarca {
 		return containerCenterWest;
 	}
 	
-	public JPanel containerEast() {
+	public JPanel containerBrands() {
 		containerCenterEast = buildMethod.createPanel(0, 0, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
 		labelTextBrandSelectedTitle = buildMethod.createLabel("Selecione a marca: ", 15, 2, SwingConstants.LEFT, colorTextBlack, colorBackgroundWhite, FontRobotoPlainSmall, 0, 0, 0, 0);
 		comboBoxBrand = (JComboBox<String>) buildMethod.createComboBox("", 15, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 0, 0, 0);
@@ -182,11 +191,11 @@ public class BuildCreateTipoMarca {
 		textfieldBrand.setEnabled(false);
 		
 		containerButtonsBrands = buildMethod.createPanel(15, 4, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
-		buttonBrandNew = buildMethod.createButton("New", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
-		buttonBrandDel = buildMethod.createButton("Del", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
-		buttonBrandSave = buildMethod.createButton("Save", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
+		buttonBrandNew = buildMethod.createButton("Novo", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
+		buttonBrandDel = buildMethod.createButton("Deletar", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
+		buttonBrandSave = buildMethod.createButton("Salvar", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
 		buttonBrandSave.setEnabled(false);
-		buttonBrandEdit = buildMethod.createButton("Edit", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
+		buttonBrandEdit = buildMethod.createButton("Editar", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
 
 		comboBoxBrand.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -211,9 +220,9 @@ public class BuildCreateTipoMarca {
 		return containerCenterEast;
 	}
 	
-	public void reloadComboBox(JComboBox<String> comboBox, String tipo) {
+	public void reloadComboBox(JComboBox<String> comboBox, String tipo) throws SQLException {
 	    brandsDAO mDao = new brandsDAO();
-	    List<String> brands = mDao.listarMarcasPorTipo(tipo);
+	    List<String> brands = mDao.listBrandsForTypes(tipo);
 
 	    comboBox.removeAllItems();
 	    for (String brand : brands) {
@@ -225,7 +234,12 @@ public class BuildCreateTipoMarca {
 	    SwingUtilities.invokeLater(new Runnable() {
 	        public void run() {
 	        	typesDAO tDao = new typesDAO();
-	            List<String> updatedTypes = tDao.listarTipos();
+	            List<String> updatedTypes = null;
+				try {
+					updatedTypes = tDao.listTypes();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 	            comboBoxTypes.removeAllItems();
 	            for (String updatedType : updatedTypes) {
 	                comboBoxTypes.addItem(updatedType);
@@ -265,22 +279,30 @@ public class BuildCreateTipoMarca {
 		        
 		        if(comboBoxBrand != null && !marca.isEmpty()) {
 		        	if (tipo != null && !tipo.isEmpty()) {						
-		        		int response = JOptionPane.showConfirmDialog(thisFrameA, "Você deseja apagar a marca: " + marca, "Apagar marca", JOptionPane.YES_OPTION);
+		        		int response = JOptionPane.showConfirmDialog(null, "Você deseja apagar a marca: " + marca, "Apagar marca", JOptionPane.YES_OPTION);
 		        		if (response == JOptionPane.YES_OPTION) {
 		        			brandsDAO mDao = new brandsDAO();
 			                String tipoSelecionado = (String) comboBoxTypes.getSelectedItem();
-			                mDao.deleteBrand(tipoSelecionado, marca);
+			                try {
+								mDao.deleteBrand(tipoSelecionado, marca);
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
 			                
 			                comboBoxTypes.setSelectedItem("");
 			                comboBoxBrand.setSelectedItem("");
-			                reloadComboBox(comboBoxBrand, tipoSelecionado);
+			                try {
+								reloadComboBox(comboBoxBrand, tipoSelecionado);
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
 		        		}
 		        		
 		        	} else {
-		        		JOptionPane.showMessageDialog(thisFrameA, "Selecione um tipo");
+		        		JOptionPane.showMessageDialog(null, "Selecione um tipo");
 		        	}
 		        } else {
-		        	JOptionPane.showMessageDialog(thisFrameA, "Selecione uma marca");
+		        	JOptionPane.showMessageDialog(null, "Selecione uma marca");
 		        }
 		        
 		    }
@@ -293,7 +315,12 @@ public class BuildCreateTipoMarca {
 		        String newBrand = textfieldBrand.getText().trim().toLowerCase();
 
 		        brandsDAO mDao = new brandsDAO();
-		        List<String> existingBrands = mDao.listarMarcasPorTipo(type);
+		        List<String> existingBrands = null;
+				try {
+					existingBrands = mDao.listBrandsForTypes(type);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 
 		        // Convert existing brands to lowercase for comparison
 		        existingBrands = existingBrands.stream()
@@ -302,43 +329,51 @@ public class BuildCreateTipoMarca {
 
 		        if (comboBoxBrand.isVisible()) { // Edição
 		            if (type == null || type.isEmpty()) {
-		                JOptionPane.showMessageDialog(thisFrameA, "Selecione um tipo para editar a marca"); // Sem tipo
+		                JOptionPane.showMessageDialog(null, "Selecione um tipo para editar a marca"); // Sem tipo
 		                return;
 		            }
 
 		            if (brand == null || brand.isEmpty()) {
-		                JOptionPane.showMessageDialog(thisFrameA, "Selecione uma marca para editar a marca"); // Sem marca
+		                JOptionPane.showMessageDialog(null, "Selecione uma marca para editar a marca"); // Sem marca
 		                return;
 		            }
 
 		            if (newBrand == null || newBrand.isEmpty()) {
-		                JOptionPane.showMessageDialog(thisFrameA, "Digite o nome da marca nova"); // Sem marca nova
+		                JOptionPane.showMessageDialog(null, "Digite o nome da marca nova"); // Sem marca nova
 		                return;
 		            }
 
 		            if (existingBrands.contains(newBrand)) {
-		                JOptionPane.showMessageDialog(thisFrameA, "A marca já existe. Por favor, insira uma marca diferente."); // Marca duplicada
+		                JOptionPane.showMessageDialog(null, "A marca já existe. Por favor, insira uma marca diferente."); // Marca duplicada
 		                return;
 		            }
 
-		            mDao.editBrand(type, brand, newBrand); // Atualiza a marca no banco de dados
+		            try {
+						mDao.editBrand(type, brand, newBrand);
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					} // Atualiza a marca no banco de dados
 		        } else { // Criando
 		            if (type == null || type.isEmpty()) {
-		                JOptionPane.showMessageDialog(thisFrameA, "Selecione um tipo para criar a marca"); // Sem tipo
+		                JOptionPane.showMessageDialog(null, "Selecione um tipo para criar a marca"); // Sem tipo
 		                return;
 		            }
 
 		            if (newBrand == null || newBrand.isEmpty()) {
-		                JOptionPane.showMessageDialog(thisFrameA, "Digite o nome da marca nova"); // Sem marca nova
+		                JOptionPane.showMessageDialog(null, "Digite o nome da marca nova"); // Sem marca nova
 		                return;
 		            }
 
 		            if (existingBrands.contains(newBrand)) {
-		                JOptionPane.showMessageDialog(thisFrameA, "A marca já existe. Por favor, insira uma marca diferente."); // Marca duplicada
+		                JOptionPane.showMessageDialog(null, "A marca já existe. Por favor, insira uma marca diferente."); // Marca duplicada
 		                return;
 		            }
 
-		            mDao.saveBrand(type, newBrand); // Insere a nova marca no banco de dados
+		            try {
+						mDao.saveBrand(type, newBrand);
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					} 
 		        }
 		        returnViewer();
 		    }
@@ -365,10 +400,10 @@ public class BuildCreateTipoMarca {
 						containerButtonsTypes.setVisible(false);
 						
 					} else {
-						JOptionPane.showMessageDialog(thisFrameA, "Marca não selecionada!");
+						JOptionPane.showMessageDialog(null, "Marca não selecionada!");
 					}
 				} else {
-					JOptionPane.showMessageDialog(thisFrameA, "Tipo não selecionada!");
+					JOptionPane.showMessageDialog(null, "Tipo não selecionada!");
 
 				}
 
@@ -408,19 +443,27 @@ public class BuildCreateTipoMarca {
 				String type = (String) comboBoxTypes.getSelectedItem();
 				
 				if (comboBoxTypes != null && !type.isEmpty()) {
-					int response = JOptionPane.showConfirmDialog(thisFrameA, "Você deseja apagar o tipo: " + type, "Apagar tipo", JOptionPane.YES_OPTION);
+					int response = JOptionPane.showConfirmDialog(null, "Você deseja apagar o tipo: " + type, "Apagar tipo", JOptionPane.YES_OPTION);
 					if (response == JOptionPane.YES_OPTION) {
 						typesDAO tDao = new typesDAO();
 						String tipoSelecionado = (String) comboBoxTypes.getSelectedItem();
-						tDao.deleteType(tipoSelecionado);
+						try {
+							tDao.deleteType(tipoSelecionado);
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
 						
 						comboBoxTypes.setSelectedItem("");
-						reloadComboBox(comboBoxTypes, tipoSelecionado);
+						try {
+							reloadComboBox(comboBoxTypes, tipoSelecionado);
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
 						reloadComboBoxTypes();
 					}
 					
 				} else {
-					JOptionPane.showMessageDialog(thisFrameA, "Selecione um tipo");
+					JOptionPane.showMessageDialog(null, "Selecione um tipo");
 				}
 				
 			}
@@ -434,28 +477,35 @@ public class BuildCreateTipoMarca {
 		        
 		        if (comboBoxTypes.isVisible()) { // Edição
 		            if (oldType == null || oldType.isEmpty()) {
-		                JOptionPane.showMessageDialog(thisFrameA, "Selecione um tipo para editar"); // Sem tipo
+		                JOptionPane.showMessageDialog(null, "Selecione um tipo para editar"); // Sem tipo
 		                return;
 		            }
 
 		            if (newType == null || newType.isEmpty()) {
-		                JOptionPane.showMessageDialog(thisFrameA, "Digite o nome do tipo novo"); // Sem tipo novo
+		                JOptionPane.showMessageDialog(null, "Digite o nome do tipo novo"); // Sem tipo novo
 		                return;
 		            }
 
-		            
-		            tDao.editTypeInTwoTables(oldType, newType);
+		            try {
+						tDao.editType(oldType, newType);
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
 		            
 		        } else { // Criando
 		            if (newType == null || newType.isEmpty()) {
-		                JOptionPane.showMessageDialog(thisFrameA, "Digite o nome do novo tipo"); // Sem tipo nova
+		                JOptionPane.showMessageDialog(null, "Digite o nome do novo tipo"); // Sem tipo nova
 		                return;
 		            }
 
-		            tDao.saveTypes(newType); // Insere o novo tipo no banco de dados
+		            try {
+						tDao.saveTypes(newType);
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					} 
 		        }
 		        
-		        reloadComboBoxTypes(); // Recarregar o JComboBox
+		        reloadComboBoxTypes(); 
 		        returnViewer();
 		    }
 		});
@@ -480,7 +530,7 @@ public class BuildCreateTipoMarca {
 					textfieldBrand.setVisible(false);
 					comboBoxBrand.setVisible(false);
 				} else {
-					JOptionPane.showMessageDialog(thisFrameA, "Selecione um tipo");
+					JOptionPane.showMessageDialog(null, "Selecione um tipo");
 				}
 				
 					

@@ -9,97 +9,124 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import com.nightbeer.jdbc.connectSQL;
+import com.nightbeer.jdbc.connectionSQL;
 
 public class brandsDAO {
 
     private Connection connection;
 
     public brandsDAO() {
-        this.connection = new connectSQL().getConnect();
+        this.connection = new connectionSQL().getConnect();
     }
 	
-    public void saveBrand(String tipo, String marca) {
-        try {
-            String sql = "INSERT INTO marca (marca, marca_tipo) VALUES(?,?)";
+    public void saveBrand(String tipo, String marca) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("INSERT INTO marca (marca, marca_tipo) VALUES(?,?)");
 
-            PreparedStatement stmt = connection.prepareStatement(sql);
+    	try {
             stmt.setString(1, marca);
             stmt.setString(2, tipo);
-            
             stmt.execute();
-            stmt.close();
 
             JOptionPane.showMessageDialog(null, "Marca salva com sucesso");
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao salvar a Marca" + e);
-        }
+            JOptionPane.showMessageDialog(null, "Erro ao salvar a Marca");
+        } finally {
+            stmt.close();
+
+		}
     }
 
-    public void editBrand(String tipo, String marcaAntiga, String marcaNova) {
-        try {
-            String sql = "UPDATE marca SET marca = ? WHERE marca_tipo = ? AND marca = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            
+    public void editBrand(String tipo, String marcaAntiga, String marcaNova) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("UPDATE marca SET marca = ? WHERE marca_tipo = ? AND marca = ?");
+        PreparedStatement stmtItem = connection.prepareStatement("UPDATE items SET marca = ? WHERE marca = ?");
+
+    	try {
             stmt.setString(1, marcaNova);
             stmt.setString(2, tipo);
             stmt.setString(3, marcaAntiga);
-
             stmt.execute();
-            stmt.close();
 
+            stmtItem.setString(1, marcaNova);
+            stmtItem.setString(2, marcaAntiga);
+            stmtItem.executeUpdate();
+            
             JOptionPane.showMessageDialog(null, "Marca editada com sucesso");
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao editar a Marca" + e);
+            JOptionPane.showMessageDialog(null, "Erro ao editar a Marca");
             System.out.println(e);
-        }
+        } finally {
+            stmt.close();
+            stmtItem.close();
+		}
     }
 
-    public void deleteBrand(String tipo, String marca) {
+    public void deleteBrand(String tipo, String marca) throws SQLException {
+        PreparedStatement stmtCountItems = connection.prepareStatement("SELECT COUNT(*) AS total FROM items WHERE tipo = ? AND marca = ?");;
+        PreparedStatement stmtDeleteMarca = connection.prepareStatement("DELETE FROM marca WHERE marca_tipo = ? AND marca = ?");
+
         try {
-            String sql = "DELETE FROM marca WHERE marca_tipo = ? AND marca = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmtCountItems.setString(1, tipo);
+            stmtCountItems.setString(2, marca);
+            ResultSet rs = stmtCountItems.executeQuery();
             
-            stmt.setString(1, tipo);
-            stmt.setString(2, marca);
-            
-            int rowsAffected = stmt.executeUpdate(); // Captura o número de linhas afetadas
-            
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(null, "Marca deletada com sucesso");
-            } else {
-                JOptionPane.showMessageDialog(null, "Nenhuma marca encontrada para deletar");
+            int totalItems = 0;
+            if (rs.next()) {
+                totalItems = rs.getInt("total");
             }
             
-            stmt.close();
+            if (totalItems > 0) {
+                JOptionPane.showMessageDialog(null, "Não é possível deletar a marca. Existem " + totalItems + " itens associados a esta marca e tipo.");
+            } else {
+                stmtDeleteMarca.setString(1, tipo);
+                stmtDeleteMarca.setString(2, marca);
+                
+                int rowsAffected = stmtDeleteMarca.executeUpdate(); 
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(null, "Marca deletada com sucesso");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Nenhuma marca encontrada para deletar");
+                }
+            }
+            
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao deletar a Marca: " + e.getMessage());
-            e.printStackTrace(); // Adiciona o rastreamento da pilha para depuração
+            JOptionPane.showMessageDialog(null, "Erro ao deletar a marca: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmtCountItems != null) {
+                    stmtCountItems.close();
+                }
+                if (stmtDeleteMarca != null) {
+                    stmtDeleteMarca.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
+
     
-    public List<String> listarMarcas() {
+    public List<String> listBrand() throws SQLException {
         List<String> marcas = new ArrayList<>();
-
+        PreparedStatement stmt = connection.prepareStatement("SELECT marca FROM marca");
+        
         try {
-            String sql = "SELECT marca FROM marca";
-            PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
                 marcas.add(rs.getString("marca"));
             }
+            
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao listar marcas: " + e);
+            JOptionPane.showMessageDialog(null, "Erro ao listar marcas");
         }
         return marcas;
     }
     
-    public List<String> listarMarcasPorTipo(String tipo) {
+    public List<String> listBrandsForTypes(String tipo) throws SQLException {
         List<String> marcas = new ArrayList<>();
-        String sql = "SELECT DISTINCT marca FROM marca WHERE marca_tipo = ?";
-
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        PreparedStatement stmt = connection.prepareStatement("SELECT DISTINCT marca FROM marca WHERE marca_tipo = ?");
+        		
+        try {
             stmt.setString(1, tipo);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -107,12 +134,8 @@ public class brandsDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+        	JOptionPane.showMessageDialog(null, "Erro ao listar marcas e tipos");
         }
-
         return marcas;
     }
-
-
-
 }

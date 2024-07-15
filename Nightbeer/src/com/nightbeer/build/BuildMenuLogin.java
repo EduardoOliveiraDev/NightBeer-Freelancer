@@ -3,6 +3,7 @@ package com.nightbeer.build;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLException;
 
 import com.nightbeer.dao.dados;
 import com.nightbeer.view.mAdmin;
@@ -24,6 +25,7 @@ public class BuildMenuLogin {
     private JPanel centerContainer;
     private JPanel panelMain; 
     
+    private JLabel labelTitle;
     private JButton buttonClose;
     private JButton buttonSend;
     
@@ -31,7 +33,7 @@ public class BuildMenuLogin {
     private JLabel labelPassword;
     private JLabel labelPasswordError;
     private JTextField textFieldUser;
-    private JTextField textFieldPassword;      
+    private JPasswordField textFieldPassword;      
     
     
     public JPanel buildLoginPanel(JFrame frame) {
@@ -65,7 +67,7 @@ public class BuildMenuLogin {
         buttonClose = buildMethod.createButton("X", 2.4, 2.6, SwingConstants.CENTER, colorTextWhite, colorButtonClose);
         buttonClose.setFont(FontRobotoPlainSmall);
         
-        topContainer.add(buttonClose, BorderLayout.LINE_END);
+        topContainer.add(buttonClose, BorderLayout.EAST);
         topContainer.setBackground(colorBlackBackground);
         
         return topContainer;
@@ -85,7 +87,7 @@ public class BuildMenuLogin {
         labelPasswordError = buildMethod.createLabel("Senha errada, tente novamente.", 16, 3, SwingConstants.LEFT, colorBlackBackground, colorBlackBackground, FontRobotoPlainSmall, 0,0,0,0); 
         
         textFieldUser = buildMethod.createTextField("Usuario", 16, 3, SwingConstants.LEFT, colorTextWhite, colorButtonGrey, FontRobotoPlainSmall, 0,10,0,10);  
-        textFieldPassword = buildMethod.createTextField("Password", 16, 3, SwingConstants.LEFT, colorTextWhite, colorButtonGrey, FontRobotoPlainSmall, 0,10,0,10);
+        textFieldPassword = buildMethod.createPasswordField("Password", 16, 3, SwingConstants.LEFT, colorTextWhite, colorButtonGrey, FontRobotoPlainSmall, 0,10,0,10);
         
         componentsLogin.add(labelUser);
         componentsLogin.add(textFieldUser);
@@ -118,7 +120,13 @@ public class BuildMenuLogin {
                 textFieldUser.requestFocusInWindow();
                 labelPasswordError.setForeground(new Color(200, 0, 0));
             } else {
-                mAdmin mAdmin = new mAdmin();
+                mAdmin mAdmin = null;
+				try {
+					mAdmin = new mAdmin();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
                 mAdmin.setVisible(true);
                 mAdmin.setBounds(BuildMethods.bounds);
               

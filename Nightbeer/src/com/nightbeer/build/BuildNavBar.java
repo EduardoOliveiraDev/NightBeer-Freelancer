@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -50,7 +51,6 @@ public class BuildNavBar {
     }
     
     private void initializeComponents() {
-        // Inicialize todos os componentes aqui
         labelNavBarTitle = buildMethod.createLabel("", 22, 0, SwingConstants.LEFT, colorTextWhite, buildMethod.colorBackgroundBlack, FontRobotoPlainLarge, 0,0,0,0);
         buttonAccess = buildMethod.createButton("", 5.5, 5.5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
         buttonMinimize = buildMethod.createButton("-", 2.2, 2.5, SwingConstants.CENTER, colorTextWhite, colorButton);
@@ -60,7 +60,6 @@ public class BuildNavBar {
         buttonMinimize.setFont(buildMethod.FontRobotoPlain18);
     }
     
-    // Global NavBar Container
     public JPanel containerNavBar() {
         JPanel painelNavBar = buildMethod.createPanel(100, 6, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
         painelNavBar.setBackground(buildMethod.colorBackgroundBlack);
@@ -71,8 +70,7 @@ public class BuildNavBar {
         return painelNavBar;
     }
     
-    // Left Container
-    public JPanel panelWest(String text) {
+    public JPanel panelLeftIconAndText(String text) {
         painelNavBarWest = buildMethod.createPanel(30, 0, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
         painelNavBarWest.setBackground(colorBlackBackground);
         
@@ -83,8 +81,7 @@ public class BuildNavBar {
         return painelNavBarWest;
     }
     
-    // Right Container
-    public JPanel panelEast(ImageIcon icon) {
+    public JPanel panelRightButtons(ImageIcon icon) {
         painelNavBarEast = buildMethod.createPanel(20, 0, new FlowLayout(FlowLayout.RIGHT), colorBackgroundWhite, 0,0,0,0);
         painelNavBarEast.setBackground(buildMethod.colorBackgroundBlack);
         
@@ -96,8 +93,7 @@ public class BuildNavBar {
         return painelNavBarEast;
     }
     
-    // Method for replace commands
-    public void replaceFunctionButton() {
+    public void replaceFunctionButton() throws SQLException {
     	
     	// Checking visibility of the mainframe
         boolean visible = mPrincipal.getInstance().getVisibleFrame();
@@ -116,7 +112,6 @@ public class BuildNavBar {
         }
     }
     
-    // Method for starting item's functions
     public void initialize() {
         
         // Minimize Button
@@ -125,13 +120,6 @@ public class BuildNavBar {
                 frame.setExtendedState(JFrame.ICONIFIED);
             }
         });
-        
-        // Access Button
-//        buttonAccess.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                replaceFunctionButton();
-//            }
-//        });
     }
     
     public void addCloseButtonListener(ActionListener listener) {
@@ -142,7 +130,6 @@ public class BuildNavBar {
     	buttonAccess.addActionListener(listener);
     }
     
-    // Method for get a other frame
     public void getFrame(JFrame frame) {
         this.frame = frame;
     }

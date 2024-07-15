@@ -1,6 +1,6 @@
 package com.nightbeer.dao;
 
-import com.nightbeer.jdbc.connectSQL;
+import com.nightbeer.jdbc.connectionSQL;
 import com.nightbeer.model.items;
 import com.nightbeer.view.mAdmin;
 
@@ -18,7 +18,7 @@ public class itemsDAO {
     private Connection connection;
 
     public itemsDAO() {
-        this.connection = new connectSQL().getConnect();
+        this.connection = new connectionSQL().getConnect();
     }
     
     public int getEstoque(int codigo) {
@@ -90,7 +90,7 @@ public class itemsDAO {
             stmt.close();
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Erro ao deletar a Marca: " + e.getMessage());
-            e.printStackTrace(); // Adiciona o rastreamento da pilha para depuração
+            e.printStackTrace();
         }
     }
     
@@ -119,6 +119,42 @@ public class itemsDAO {
         }
 
         return lista;
+    }
+    
+    public items getItemById(int id) throws SQLException {
+    	items item = null;
+    	ResultSet rs = null;
+    	PreparedStatement stmt = connection.prepareStatement("SELECT * FROM items WHERE codigo = ?");
+    	
+    	try {
+			stmt.setInt(1, id);
+			rs = stmt.executeQuery();
+    		
+            if (rs.next()) {
+                item = new items();
+                item.setCodigo(rs.getInt("codigo"));
+                item.setProduto(rs.getString("produto"));
+                item.setTipo(rs.getString("tipo"));
+                item.setMarca(rs.getString("marca"));
+                item.setEstoque(rs.getInt("estoque"));
+                item.setPreco(rs.getDouble("preco"));
+            }
+    		
+    	} catch (SQLException ex) {
+            System.out.println("Erro ao buscar item por ID: " + ex.getMessage());
+            throw ex; 
+        } finally {
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmt != null) {
+                stmt.close();
+            }
+            if (connection != null) {
+            	connection.close();
+            }
+        }
+    	return item;
     }
 
 }

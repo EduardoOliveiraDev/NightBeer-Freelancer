@@ -75,13 +75,14 @@ public class BuildMethods{
         return JTextField;
     }
     
-    public JPasswordField createPasswordField(String textField, double width, double height, int textPosition, Color FontColor, Color BackgroundColor) {
+    public JPasswordField createPasswordField(String textField, double width, double height, int textPosition, Color FontColor, Color BackgroundColor, Font FontFamiliy, int top, int right, int bottom, int left) {
     	JPasswordField JPasswordField = new JPasswordField();
     	JPasswordField.setHorizontalAlignment(textPosition);
     	JPasswordField.setForeground(FontColor);
     	JPasswordField.setBackground(BackgroundColor);
     	JPasswordField.setOpaque(true);
-    	JPasswordField.setBorder(new EmptyBorder(0, 0, 0, 0));
+    	JPasswordField.setFont(FontFamiliy);
+    	JPasswordField.setBorder(BorderFactory.createMatteBorder(top, left, bottom, right, BackgroundColor));
     	JPasswordField.setPreferredSize(createResponsive(width, height));
     	return JPasswordField;
     }

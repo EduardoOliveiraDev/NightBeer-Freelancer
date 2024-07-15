@@ -2,6 +2,7 @@ package com.nightbeer.build;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,8 +32,6 @@ public class BuildMAdmin {
     private Font FontRobotoPlainSmall = buildMethod.FontRobotoPlain16;
     private Font FontRobotoPlainLarge = buildMethod.FontRobotoPlain28;
 
-	private JFrame thisFrameP = mPrincipal.getInstance().getFrame();
-	private JFrame thisFrameA = mAdmin.getInstance().getFrame();
     
     private JPanel containerTable;
     private JTable tabela;
@@ -69,7 +68,7 @@ public class BuildMAdmin {
     private JButton buttonAddingEstoque;
 
     
-    public void listar() {
+    public void list() {
         itemsDAO dao = new itemsDAO();
         List<items> lista = dao.listar();
         dados.setNumRows(0);
@@ -82,36 +81,36 @@ public class BuildMAdmin {
                 i.getEstoque(),
                 i.getPreco() 
         }));
-    }
+    } 
   
-    public void listarTipos() {
+    public void listTypes() throws SQLException {
     	typesDAO tDao = new typesDAO();
-        List<String> tipos = tDao.listarTipos(); 
+        List<String> tipos = tDao.listTypes(); 
         comboBoxInfoItemTipo.removeAllItems(); 
         comboBoxInfoItemTipo.addItem("");
         
         tipos.forEach(tipo -> comboBoxInfoItemTipo.addItem(tipo)); 
     }
     
-    public void listarMarcas() {
+    public void listBrands() throws SQLException {
     	brandsDAO mDao = new brandsDAO();
-        List<String> marcas = mDao.listarMarcas(); 
+        List<String> marcas = mDao.listBrand(); 
         comboBoxInfoItemMarca.removeAllItems(); 
         comboBoxInfoItemMarca.addItem("");
         
         marcas.forEach(marca -> comboBoxInfoItemMarca.addItem(marca)); 
     }
     
-    public void listarMarcasPorTipo(String tipo) {
+    public void listBrandsForTypes(String tipo) throws SQLException {
         brandsDAO mDao = new brandsDAO();
-        List<String> marcas = mDao.listarMarcasPorTipo(tipo); 
+        List<String> marcas = mDao.listBrandsForTypes(tipo); 
         comboBoxInfoItemMarca.removeAllItems(); 
         comboBoxInfoItemMarca.addItem("");
         
         marcas.forEach(marca -> comboBoxInfoItemMarca.addItem(marca)); 
     }
     
-    public JPanel containerCenter() {
+    public JPanel containerCenter() throws SQLException {
         JPanel containerCenter = buildMethod.createPanel(65, 100, new BorderLayout(), colorBackgroundWhite, 0,0,25,25);
         
         containerTable();
@@ -142,7 +141,7 @@ public class BuildMAdmin {
         return containerTable;
     }
 
-    public JPanel containerEast() {
+    public JPanel containerEast() throws SQLException {
         JPanel containerEast = buildMethod.createPanel(35, 100, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
 
         containerEastEditNorth();
@@ -154,7 +153,7 @@ public class BuildMAdmin {
         return containerEast;
     }
 
-    public JPanel containerEastEditNorth() {
+    public JPanel containerEastEditNorth() throws SQLException {
         containerEastEditNorth = buildMethod.createPanel(32, 29, new FlowLayout(FlowLayout.RIGHT), colorBackgroundWhite, 12,0,0,0);
 
         labelTextTitle = buildMethod.createLabel("Edição de itens", 29, 6, SwingConstants.CENTER, colorTextBlack, colorBackgroundWhite, FontRobotoPlainLarge, 0,0,0,0);
@@ -184,11 +183,39 @@ public class BuildMAdmin {
         buttonAddingEstoque = buildMethod.createButton("+", 1.3, 2, SwingConstants.CENTER, colorTextBlack, colorWhiteClear);
         buttonAddingEstoque.setFont(FontRobotoPlainSmall);
         buttonAddingEstoque.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = tabela.getSelectedRow();
+                if (selectedRow == -1) {
+                    JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Selecione um item na tabela para adicionar ao estoque.");
+                    return;
+                }
 
-				
-			}
-		});
+                String estoqueText = textFieldInfoItemEstoque.getText().trim();
+                String quantidadeText = JOptionPane.showInputDialog(mAdmin.getInstance().getFrame(), "Informe a quantidade para adicionar ou remover:", "Controle de Estoque", JOptionPane.PLAIN_MESSAGE);
+
+                if (estoqueText.isEmpty() || quantidadeText == null || quantidadeText.isEmpty()) {
+                    JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos.");
+                    return;
+                }
+
+                try {
+                    int estoqueAtual = Integer.parseInt(estoqueText);
+                    int quantidadeAdicionar = Integer.parseInt(quantidadeText);
+                    int novoEstoque = estoqueAtual + quantidadeAdicionar;
+
+                    textFieldInfoItemEstoque.setText(String.valueOf(novoEstoque));
+
+                     itemsDAO dao = new itemsDAO();
+                     int codigo = Integer.parseInt(labelInfoItemCodigo.getText());
+                     dao.updateEstoque(codigo, novoEstoque);
+
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, insira um número válido para a quantidade.");
+                }
+            }
+        });
+
+
         
         textFieldInfoItemProduto.setEditable(false);
         comboBoxInfoItemTipo.setEnabled(false);
@@ -202,19 +229,29 @@ public class BuildMAdmin {
         buttonBrand.setFont(FontRobotoPlainSmall);
         buttonType.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mCreateTipoMarca mCreateTipoMarca = new mCreateTipoMarca();
+				mCreateTipoMarca mCreateTipoMarca = null;
+				try {
+					mCreateTipoMarca = new mCreateTipoMarca();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 				mCreateTipoMarca.setVisible(true);
 			}
 		});
         buttonBrand.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				mCreateTipoMarca mCreateTipoMarca = new mCreateTipoMarca();
+				mCreateTipoMarca mCreateTipoMarca = null;
+				try {
+					mCreateTipoMarca = new mCreateTipoMarca();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 				mCreateTipoMarca.setVisible(true);
 			}
 		});
 
-        listarMarcas();
-        listarTipos();
+        listBrands();
+        listTypes();
         
         tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -233,9 +270,17 @@ public class BuildMAdmin {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     String selectedTipo = (String) comboBoxInfoItemTipo.getSelectedItem();
                     if (selectedTipo != null && !selectedTipo.isEmpty()) {
-                        listarMarcasPorTipo(selectedTipo);
+                        try {
+							listBrandsForTypes(selectedTipo);
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
                     } else {
-                        listarMarcas(); // Lista todas as marcas se nenhum tipo for selecionado
+                        try {
+							listBrands();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						} // Lista todas as marcas se nenhum tipo for selecionado
                     }
                 }
             }
@@ -273,10 +318,10 @@ public class BuildMAdmin {
     private JPanel containerEastEditSouth() {
     	containerEastEditSouth = buildMethod.createPanel(31.5, 7, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
 
-        buttonNew = buildMethod.createButton("New", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
-        buttonDel = buildMethod.createButton("Del", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
-        buttonEdit = buildMethod.createButton("Edit", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
-        buttonSave = buildMethod.createButton("Save", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
+        buttonNew = buildMethod.createButton("Novo", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
+        buttonDel = buildMethod.createButton("Deletar", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
+        buttonSave = buildMethod.createButton("Salvar", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
+        buttonEdit = buildMethod.createButton("Editar", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
         buttonSave.setEnabled(false);
         
         buttonNew.addActionListener(new ActionListener() {
@@ -314,7 +359,7 @@ public class BuildMAdmin {
 				int codigo = Integer.parseInt(codigoString);
 				
 				if (labelInfoItemCodigo != null && !codigoString.isEmpty()) { 
-	        		int response = JOptionPane.showConfirmDialog(thisFrameA, "Você deseja apagar o produto: \n" +
+	        		int response = JOptionPane.showConfirmDialog(mAdmin.getInstance().getFrame(), "Você deseja apagar o produto: \n" +
 	        				"\n Codigo: " + codigoString +
 	        				"\n Produto: " + produto +
 	        				"\n Tipo: " + tipo +
@@ -327,13 +372,18 @@ public class BuildMAdmin {
 	        		if (response == JOptionPane.YES_OPTION) {
 	        			itemsDAO dao = new itemsDAO();
 	        			dao.deleteItem(codigo);
-	                    reload();
-	        			JOptionPane.showMessageDialog(thisFrameA, "Produto apagado");
+	                    try {
+							reload();
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+	        			JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Produto apagado");
 	        		} 
 					
 					
 				} else { 
-					JOptionPane.showMessageDialog(thisFrameA, "Selecione um item para deletar");
+					JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Selecione um item para deletar");
 				}
 					
 
@@ -353,7 +403,7 @@ public class BuildMAdmin {
                     precoText = precoText.replace(",", ".");
 
                     if (produto.isEmpty() || tipo == null || tipo.isEmpty() || marca == null || marca.isEmpty() || estoqueText.isEmpty() || precoText.isEmpty()) {
-                        JOptionPane.showMessageDialog(thisFrameA, "Por favor, preencha todos os campos.");
+                        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos.");
                         return;
                     }
 
@@ -370,19 +420,19 @@ public class BuildMAdmin {
 
                     if (codigoText == null || codigoText.isEmpty()) { // create
                         dao.saveItems(item);
-                        JOptionPane.showMessageDialog(thisFrameA, "Item criado com sucesso!");
+                        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Item criado com sucesso!");
                     } else { // edit
                         int codigo = Integer.parseInt(codigoText);
                         item.setCodigo(codigo);
                         dao.editItems(item);
-                        JOptionPane.showMessageDialog(thisFrameA, "Item atualizado com sucesso!");
+                        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Item atualizado com sucesso!");
                     }
 
                     reload();
                 } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(thisFrameA, "Por favor, preencha todos os campos corretamente.");
+                    JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos corretamente.");
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(thisFrameA, "Erro ao salvar item: " + ex.getMessage());
+                    JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Erro ao salvar item: " + ex.getMessage());
                 }
             }
         });
@@ -459,10 +509,10 @@ public class BuildMAdmin {
         buttonGoBack.setVisible(false);
     }
 
-    public void reload() {
-        listar();
-        listarTipos();
-        listarMarcas();
+    public void reload() throws SQLException {
+        list();
+        listTypes();
+        listBrands();
         clearForm();
         resetForm();
     }

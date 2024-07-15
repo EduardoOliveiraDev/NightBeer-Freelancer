@@ -2,6 +2,8 @@ package com.nightbeer.view;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLException;
+
 import javax.swing.*;
 
 import com.nightbeer.build.BuildMAdmin;
@@ -16,7 +18,7 @@ public class mAdmin extends JFrame{
 	private BuildNavBar navBar = new BuildNavBar();
 	private static mAdmin instance;
    
-	public mAdmin() {
+	public mAdmin() throws SQLException {
 		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("NightBeer Config");
@@ -31,7 +33,7 @@ public class mAdmin extends JFrame{
           
         addWindowListener(new WindowAdapter() {
             public void windowActivated(WindowEvent evt) {
-                buildMAdmin.listar();
+                buildMAdmin.list();
             }
             
         });
@@ -44,14 +46,19 @@ public class mAdmin extends JFrame{
         
         navBar.addAcessButtonListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				navBar.replaceFunctionButton();
+				try {
+					navBar.replaceFunctionButton();
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 	}
     
-	public void BuildingViewMadmin() {
-		navBar.panelWest("  NightBeer Admin");
-		navBar.panelEast(navBar.iconBack);
+	public void BuildingViewMadmin() throws SQLException {
+		navBar.panelLeftIconAndText("  NightBeer Admin");
+		navBar.panelRightButtons(navBar.iconBack);
 		navBar.getFrame(this);
 	    contentPane.add(navBar.containerNavBar(), BorderLayout.NORTH);
 	    

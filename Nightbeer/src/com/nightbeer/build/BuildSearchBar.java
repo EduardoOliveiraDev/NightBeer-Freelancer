@@ -7,14 +7,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -37,50 +40,49 @@ public class BuildSearchBar {
 
     private Font FontRobotoPlainSmall = buildMethod.FontRobotoPlain16;
     
-	private JFrame thisFrameP = mPrincipal.getInstance().getFrame();
-	private JFrame thisFrameA = mAdmin.getInstance().getFrame();
-    
     private JTable tabela;
     
     private JPanel containerSearch;
     private JPanel searchPanel;
     private JTextField textFieldSearch;
-    private JButton buttonClearFilter;
+    private JButton buttonClearFilter; 
     private JComboBox<String> comboBoxType; 
     private JComboBox<String> comboBoxBrand; 
+    
+    public ImageIcon iconClearFilter = buildMethod.createImage("../images/iconClearFilter.png", 35, 35);
     
     public BuildSearchBar(JTable tabela) {
         this.tabela = tabela;
     }
     
-    public void listarTipos() {
+    public void listTypes() throws SQLException {
         typesDAO tDao = new typesDAO();
-        List<String> tipos = tDao.listarTipos(); 
+        List<String> tipos = tDao.listTypes(); 
         comboBoxType.removeAllItems(); 
         comboBoxType.addItem("");
         
         tipos.forEach(tipo -> comboBoxType.addItem(tipo)); 
     }
     
-    public void listarMarcas() {
+    public void listBrands() throws SQLException {
         brandsDAO mDao = new brandsDAO();
-        List<String> marcas = mDao.listarMarcas(); 
+        List<String> marcas = mDao.listBrand(); 
         comboBoxBrand.removeAllItems(); 
         comboBoxBrand.addItem("");
         
         marcas.forEach(marca -> comboBoxBrand.addItem(marca)); 
     }
     
-    public void listarMarcasPorTipo(String tipo) {
+    public void listBrandsForTypes(String tipo) throws SQLException {
     	brandsDAO mDao = new brandsDAO();
-    	List<String> marcas = mDao.listarMarcasPorTipo(tipo); 
+    	List<String> marcas = mDao.listBrandsForTypes(tipo); 
         comboBoxBrand.removeAllItems(); 
         comboBoxBrand.addItem("");
         
         marcas.forEach(marca -> comboBoxBrand.addItem(marca)); 
     }
     
-    public JPanel containerSearch() {
+    public JPanel containerSearch() throws SQLException {
         containerSearch = buildMethod.createPanel(100, 7, null, colorBackgroundWhite, 0,0,0,0);
         containerSearch.setLayout(new BoxLayout(containerSearch, BoxLayout.Y_AXIS));
         containerSearch.add(Box.createVerticalGlue());
@@ -88,22 +90,35 @@ public class BuildSearchBar {
         textFieldSearch = buildMethod.createTextField("", 38, 4, SwingConstants.LEFT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 10, 0, 10);
         comboBoxType = (JComboBox<String>) buildMethod.createComboBox("", 10, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 0, 0, 0);
         comboBoxBrand = (JComboBox<String>) buildMethod.createComboBox("", 10, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 0, 0, 0);
-        buttonClearFilter = buildMethod.createButton("c", 3, 4, SwingConstants.CENTER, colorTextBlack, colorWhiteClear);
+        buttonClearFilter = buildMethod.createButton("", 3, 4, SwingConstants.CENTER, colorTextBlack, colorBackgroundWhite);
+        buttonClearFilter.setIcon(iconClearFilter);
+        
 
-        listarTipos();
-        listarMarcas();
+        listTypes();
+        listBrands();
  
         comboBoxType.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String selectedTipo = (String) comboBoxType.getSelectedItem();
                 
                 if (selectedTipo != null && !selectedTipo.isEmpty()) {
-                    listarMarcasPorTipo(selectedTipo);
+                    try {
+						listBrandsForTypes(selectedTipo);
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 } else {
-                    listarMarcas();
+                    try {
+						listBrands();
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
                 }
 
                 applyFilters();
+                
             }
         });
         
@@ -121,6 +136,13 @@ public class BuildSearchBar {
 
         buttonClearFilter.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				try {
+					listBrands();
+					listTypes();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				
 				comboBoxType.setSelectedItem("");
 				comboBoxBrand.setSelectedItem("");
 				textFieldSearch.setText("");
