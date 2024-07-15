@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.*;
+import javax.swing.text.AbstractDocument;
 
 import com.nightbeer.dao.brandsDAO;
 import com.nightbeer.dao.itemsDAO;
@@ -123,7 +124,6 @@ public class BuildMAdmin {
 
     public JPanel containerTable() {
         containerTable = buildMethod.createPanel(100, 66, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
-
         String[] colunas = {"Código", "Produto", "Tipo", "Marca", "Estoque", "Preço"};
         dados = new DefaultTableModel(colunas, 0) {
             public boolean isCellEditable(int row, int column) {
@@ -132,12 +132,14 @@ public class BuildMAdmin {
         };
         tabela = new JTable(dados);
         tabela.getTableHeader().setReorderingAllowed(false);
+        containerTable.add(new JScrollPane(tabela), BorderLayout.CENTER);
 
         for (int i = 0; i < tabela.getColumnCount(); i++) {
             TableColumn column = tabela.getColumnModel().getColumn(i);
             column.setResizable(false);
         }
-        containerTable.add(new JScrollPane(tabela), BorderLayout.CENTER);
+        
+
         return containerTable;
     }
 
@@ -170,6 +172,9 @@ public class BuildMAdmin {
         comboBoxInfoItemMarca  = (JComboBox<String>) buildMethod.createComboBox("", 15.6, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,0,0,0);
         textFieldInfoItemEstoque  = buildMethod.createTextField("", 10.3, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         textFieldInfoItemPreco = buildMethod.createTextField("", 10.3, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
+        
+        ((AbstractDocument) textFieldInfoItemProduto.getDocument()).setDocumentFilter(new LimitDocumentFilter(255));
+        ((AbstractDocument) textFieldInfoItemEstoque.getDocument()).setDocumentFilter(new LimitDocumentFilter(11));
         
         buttonGoBack = buildMethod.createButton("<", 2.2, 2.5, SwingConstants.CENTER, colorBackgroundWhite, colorBlackBackground);
         buttonGoBack.setVisible(false);

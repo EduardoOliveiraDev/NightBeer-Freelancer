@@ -25,6 +25,7 @@ import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.AbstractDocument;
 
 import com.nightbeer.dao.brandsDAO;
 import com.nightbeer.dao.typesDAO;
@@ -86,14 +87,13 @@ public class BuildSearchBar {
         containerSearch = buildMethod.createPanel(100, 7, null, colorBackgroundWhite, 0,0,0,0);
         containerSearch.setLayout(new BoxLayout(containerSearch, BoxLayout.Y_AXIS));
         containerSearch.add(Box.createVerticalGlue());
-
+        
         textFieldSearch = buildMethod.createTextField("", 38, 4, SwingConstants.LEFT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 10, 0, 10);
         comboBoxType = (JComboBox<String>) buildMethod.createComboBox("", 10, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 0, 0, 0);
         comboBoxBrand = (JComboBox<String>) buildMethod.createComboBox("", 10, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 0, 0, 0);
         buttonClearFilter = buildMethod.createButton("", 3, 4, SwingConstants.CENTER, colorTextBlack, colorBackgroundWhite);
         buttonClearFilter.setIcon(iconClearFilter);
         
-
         listTypes();
         listBrands();
  

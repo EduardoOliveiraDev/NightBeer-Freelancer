@@ -5,28 +5,25 @@ import java.awt.event.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.Map;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.*;
-import javax.swing.text.FlowView.FlowStrategy;
+import javax.swing.text.AbstractDocument;
 
 import com.nightbeer.dao.itemsDAO;
+import com.nightbeer.dao.purchasesHistoricDAO;
 import com.nightbeer.model.items;
-import com.nightbeer.view.mLogIn;
 import com.nightbeer.view.mPreviusTableBuy;
 import com.nightbeer.view.mPrincipal;
 
 public class BuildMPrincipal {
     private BuildMethods buildMethod = new BuildMethods();
-    private BuildPreviusBuy buildPreviusBuy = new BuildPreviusBuy();
+    private BuildHistoricBuy buildPreviusBuy = new BuildHistoricBuy();
     private Color colorTextWhite = buildMethod.colorTextWhite;
     private Color colorTextBlack = buildMethod.colorTextBlack;
     private Color colorBlackBackground = buildMethod.colorBackgroundBlack;
@@ -224,6 +221,8 @@ public class BuildMPrincipal {
         labelInfoItemEstoque = buildMethod.createLabel("", 10, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         labelInfoItemPreco = buildMethod.createLabel("", 10, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         
+        ((AbstractDocument) textFieldInfoItemCodigo.getDocument()).setDocumentFilter(new LimitDocumentFilter(100));
+        
         textFieldInfoItemCodigo.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent evt) {
                 applyFilters();
@@ -370,7 +369,6 @@ public class BuildMPrincipal {
         
         buttonPreviusBuy = buildMethod.createButton("Reveja a compra anterior", 20, 3, SwingConstants.LEFT, colorTextBlack, colorBackgroundWhite);
         buttonPreviusBuy.setFont(FontRobotoPlainSmall);
-        buttonPreviusBuy.setVisible(false);
         
         buttonPreviusBuy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -559,10 +557,23 @@ public class BuildMPrincipal {
     private void confirmarCompra() {
         int response = JOptionPane.showConfirmDialog(frame, "Você deseja confirmar a compra?", "Confirmar compra", JOptionPane.YES_OPTION);
         if (response == JOptionPane.YES_OPTION) {
-            buttonPreviusBuy.setVisible(true);
+            purchasesHistoricDAO hDAO = new purchasesHistoricDAO();
+            double sumTotalPriceOfItems = calcTotalCust();
+            Map<Integer, Map<String, Object>> tableData = purchasesHistoricDAO.getShoppingCart(tabelaBuy);
+            try {
+                tabelaBuy.clearSelection();
+                hDAO.saveHistotic(tableData, sumTotalPriceOfItems);
+
+                // Limpar tabela de compras após confirmar a compra
+                dadosBuy.setRowCount(0);
+                refreshTotalPrice();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Erro ao salvar historico de compras: " + e.getMessage());
+            }
         }
     }
-
+    
     public void applyFilters() {
     	itemsDAO dao = new itemsDAO();
     	String codigoText = textFieldInfoItemCodigo.getText().trim();

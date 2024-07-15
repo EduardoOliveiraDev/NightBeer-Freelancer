@@ -10,16 +10,12 @@ import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.swing.text.AbstractDocument;
 
 import javax.swing.*;
 
-import com.mysql.cj.x.protobuf.MysqlxNotice.Frame;
 import com.nightbeer.dao.brandsDAO;
-import com.nightbeer.dao.itemsDAO;
 import com.nightbeer.dao.typesDAO;
-import com.nightbeer.view.mAdmin;
-import com.nightbeer.view.mCreateTipoMarca;
-import com.nightbeer.view.mPrincipal;
 
 public class BuildCreateTipoMarca {
     private BuildMethods buildMethod = new BuildMethods();
@@ -30,9 +26,7 @@ public class BuildCreateTipoMarca {
     
     private Color colorWhiteClear = buildMethod.colorWhiteClear;
 
-    private Color colorButton = buildMethod.colorButton;
     private Color colorButtonLightGrey = buildMethod.colorButtonLightGrey;
-    private Color colorButtonGreen = buildMethod.colorButtonGreen;
     private Color colorButtonClose = buildMethod.colorButtonClose;
     
     private Font FontRobotoPlainSmall = buildMethod.FontRobotoPlain16;
@@ -40,7 +34,6 @@ public class BuildCreateTipoMarca {
 	private JPanel containerNavBar;
 	private JButton buttonClose;
 	private JButton buttonGoBack;
-
 	
 	private JPanel containerMain;
 
@@ -138,6 +131,8 @@ public class BuildCreateTipoMarca {
 		textfieldType = buildMethod.createTextField("", 15, 4, SwingConstants.LEFT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 10, 0, 10);
 		textfieldType.setEnabled(false);
 		
+		((AbstractDocument) textfieldType.getDocument()).setDocumentFilter(new LimitDocumentFilter(100));
+		
 		containerButtonsTypes = buildMethod.createPanel(15, 4, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
 		buttonTypeNew = buildMethod.createButton("Novo", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
 		buttonTypeDel = buildMethod.createButton("Deletar", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
@@ -189,6 +184,8 @@ public class BuildCreateTipoMarca {
 		labelTextBrandTitle = buildMethod.createLabel("Marca: ", 15, 2, SwingConstants.LEFT, colorTextBlack, colorBackgroundWhite, FontRobotoPlainSmall, 0, 0, 0, 0);
 		textfieldBrand = buildMethod.createTextField("", 15, 4, SwingConstants.LEFT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 10, 0, 10);
 		textfieldBrand.setEnabled(false);
+		
+		((AbstractDocument) textfieldBrand.getDocument()).setDocumentFilter(new LimitDocumentFilter(100));
 		
 		containerButtonsBrands = buildMethod.createPanel(15, 4, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
 		buttonBrandNew = buildMethod.createButton("Novo", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);

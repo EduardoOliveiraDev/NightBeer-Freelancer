@@ -2,7 +2,6 @@ package com.nightbeer.dao;
 
 import com.nightbeer.jdbc.connectionSQL;
 import com.nightbeer.model.items;
-import com.nightbeer.view.mAdmin;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -97,6 +96,7 @@ public class itemsDAO {
     public List<items> listar() {
         List<items> lista = new ArrayList<>();
 
+        
         try {
             String sql = "SELECT * FROM items";
             PreparedStatement stmt = connection.prepareStatement(sql);
