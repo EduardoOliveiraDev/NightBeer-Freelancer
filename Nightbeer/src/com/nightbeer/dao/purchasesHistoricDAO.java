@@ -1,5 +1,6 @@
 package com.nightbeer.dao;
 
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,6 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.nightbeer.jdbc.connectionSQL;
 import com.nightbeer.model.historic;
 
@@ -66,6 +69,12 @@ public class purchasesHistoricDAO {
         return gson.toJson(tableData);
     }
 
+    public static Map<Integer, Map<String, Object>> convertStringToHashMap(String jsonString) {
+        Gson gson = new Gson();
+        Type type = new TypeToken<HashMap<Integer, Map<String, Object>>>() {}.getType();
+        return gson.fromJson(jsonString, type);
+    }
+    
     public List<historic> listHistoric() throws SQLException {
         List<historic> listHistoric = new ArrayList<>();
         PreparedStatement stmt = connection.prepareStatement("SELECT * FROM historico_de_compras");

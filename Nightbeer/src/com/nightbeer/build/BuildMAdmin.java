@@ -3,7 +3,6 @@ package com.nightbeer.build;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
@@ -18,7 +17,6 @@ import com.nightbeer.dao.typesDAO;
 import com.nightbeer.model.items;
 import com.nightbeer.view.mAdmin;
 import com.nightbeer.view.mCreateTipoMarca;
-import com.nightbeer.view.mPrincipal;
 
 public class BuildMAdmin {
 
@@ -33,12 +31,11 @@ public class BuildMAdmin {
     private Font FontRobotoPlainSmall = buildMethod.FontRobotoPlain16;
     private Font FontRobotoPlainLarge = buildMethod.FontRobotoPlain28;
 
-    
-    private JPanel containerTable;
-    private JTable tabela;
-    private DefaultTableModel dados;
+    private JPanel containerTableItems;
+    private JTable tabelaItems;
+    private DefaultTableModel dadosItems;
 
-    private JPanel containerEastEditNorth;
+    private JPanel containerInfoItems;
     private JLabel labelTextTitle;
     private JLabel labelTextCodigo;
     private JLabel labelTextProduto;
@@ -54,10 +51,7 @@ public class BuildMAdmin {
     private JTextField textFieldInfoItemEstoque;
     private JTextField textFieldInfoItemPreco;
 
-    private JLabel labelTipo;
-    private JLabel labelMarca;
-
-    private JPanel containerEastEditSouth;
+    private JPanel containerButtons;
     private JButton buttonDel;
     private JButton buttonEdit;
     private JButton buttonSave;
@@ -67,14 +61,13 @@ public class BuildMAdmin {
     private JButton buttonBrand;
     private JButton buttonGoBack;
     private JButton buttonAddingEstoque;
-
     
-    public void list() {
+    public void listItems() {
         itemsDAO dao = new itemsDAO();
         List<items> lista = dao.listar();
-        dados.setNumRows(0);
+        dadosItems.setNumRows(0);
 
-        lista.forEach(i -> dados.addRow(new Object[] {
+        lista.forEach(i -> dadosItems.addRow(new Object[] {
                 i.getCodigo(),
                 i.getProduto(),
                 i.getTipo(),
@@ -113,50 +106,42 @@ public class BuildMAdmin {
     
     public JPanel containerCenter() throws SQLException {
         JPanel containerCenter = buildMethod.createPanel(65, 100, new BorderLayout(), colorBackgroundWhite, 0,0,25,25);
-        
-        containerTable();
-
-        containerCenter.add(new BuildSearchBar(tabela).containerSearch(), BorderLayout.NORTH);
-        containerCenter.add(containerTable, BorderLayout.CENTER);
+        containerCenter.add(new BuildSearchBar(tabelaItems).containerSearchMain(), BorderLayout.NORTH);
+        containerCenter.add(containerTable(), BorderLayout.CENTER);
 
         return containerCenter;
     }
 
-    public JPanel containerTable() {
-        containerTable = buildMethod.createPanel(100, 66, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
+    @SuppressWarnings("serial")
+	public JPanel containerTable() {
+        containerTableItems = buildMethod.createPanel(100, 66, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
         String[] colunas = {"Código", "Produto", "Tipo", "Marca", "Estoque", "Preço"};
-        dados = new DefaultTableModel(colunas, 0) {
+        dadosItems = new DefaultTableModel(colunas, 0) {
             public boolean isCellEditable(int row, int column) {
                 return false;
             } 
         };
-        tabela = new JTable(dados);
-        tabela.getTableHeader().setReorderingAllowed(false);
-        containerTable.add(new JScrollPane(tabela), BorderLayout.CENTER);
+        tabelaItems = new JTable(dadosItems);
+        tabelaItems.getTableHeader().setReorderingAllowed(false);
+        containerTableItems.add(new JScrollPane(tabelaItems), BorderLayout.CENTER);
 
-        for (int i = 0; i < tabela.getColumnCount(); i++) {
-            TableColumn column = tabela.getColumnModel().getColumn(i);
+        for (int i = 0; i < tabelaItems.getColumnCount(); i++) {
+            TableColumn column = tabelaItems.getColumnModel().getColumn(i);
             column.setResizable(false);
         }
-        
-
-        return containerTable;
+        return containerTableItems;
     }
 
     public JPanel containerEast() throws SQLException {
-        JPanel containerEast = buildMethod.createPanel(35, 100, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
-
-        containerEastEditNorth();
-        containerEastEditSouth();
-        
-        containerEast.add(containerEastEditNorth);
-        containerEast.add(containerEastEditSouth);
-
-        return containerEast;
+        JPanel containerInfoItemsAndButtons = buildMethod.createPanel(35, 100, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
+        containerInfoItemsAndButtons.add(containerInfoItems());
+        containerInfoItemsAndButtons.add(containerButtons());
+        return containerInfoItemsAndButtons;
     }
 
-    public JPanel containerEastEditNorth() throws SQLException {
-        containerEastEditNorth = buildMethod.createPanel(32, 29, new FlowLayout(FlowLayout.RIGHT), colorBackgroundWhite, 12,0,0,0);
+    @SuppressWarnings("unchecked")
+	public JPanel containerInfoItems() throws SQLException {
+        containerInfoItems = buildMethod.createPanel(32, 29, new FlowLayout(FlowLayout.RIGHT), colorBackgroundWhite, 12,0,0,0);
 
         labelTextTitle = buildMethod.createLabel("Edição de itens", 29, 6, SwingConstants.CENTER, colorTextBlack, colorBackgroundWhite, FontRobotoPlainLarge, 0,0,0,0);
         labelTextCodigo = buildMethod.createLabel("Código", 10.3, 2, SwingConstants.LEFT, colorTextBlack, colorBackgroundWhite, FontRobotoPlainSmall, 0,0,0,0);
@@ -189,7 +174,7 @@ public class BuildMAdmin {
         buttonAddingEstoque.setFont(FontRobotoPlainSmall);
         buttonAddingEstoque.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int selectedRow = tabela.getSelectedRow();
+                int selectedRow = tabelaItems.getSelectedRow();
                 if (selectedRow == -1) {
                     JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Selecione um item na tabela para adicionar ao estoque.");
                     return;
@@ -220,8 +205,6 @@ public class BuildMAdmin {
             }
         });
 
-
-        
         textFieldInfoItemProduto.setEditable(false);
         comboBoxInfoItemTipo.setEnabled(false);
         comboBoxInfoItemMarca.setEnabled(false);
@@ -258,9 +241,9 @@ public class BuildMAdmin {
         listBrands();
         listTypes();
         
-        tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tabelaItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        ListSelectionModel selectionModel = tabela.getSelectionModel();
+        ListSelectionModel selectionModel = tabelaItems.getSelectionModel();
         selectionModel.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
@@ -291,37 +274,29 @@ public class BuildMAdmin {
             }
         });
 
-        containerEastEditNorth.add(buttonGoBack);
-        containerEastEditNorth.add(labelTextTitle);
-
-        containerEastEditNorth.add(labelTextCodigo);
-        containerEastEditNorth.add(labelTextEstoque);
-        
-        containerEastEditNorth.add(buttonAddingEstoque);
-        
-        containerEastEditNorth.add(labelTextPreco);
-        containerEastEditNorth.add(labelInfoItemCodigo);
-        containerEastEditNorth.add(textFieldInfoItemEstoque);
-        containerEastEditNorth.add(textFieldInfoItemPreco);
-        containerEastEditNorth.add(labelTextProduto);
-        containerEastEditNorth.add(textFieldInfoItemProduto);
-        containerEastEditNorth.add(labelTextTipo);
-        
-        containerEastEditNorth.add(buttonType);
-        
-        containerEastEditNorth.add(labelTextMarca);
-        
-        containerEastEditNorth.add(buttonBrand);
-
-        
-        containerEastEditNorth.add(comboBoxInfoItemTipo);
-        containerEastEditNorth.add(comboBoxInfoItemMarca);
-
-        return containerEastEditNorth;
+        containerInfoItems.add(buttonGoBack);
+        containerInfoItems.add(labelTextTitle);
+        containerInfoItems.add(labelTextCodigo);
+        containerInfoItems.add(labelTextEstoque);
+        containerInfoItems.add(buttonAddingEstoque);
+        containerInfoItems.add(labelTextPreco);
+        containerInfoItems.add(labelInfoItemCodigo);
+        containerInfoItems.add(textFieldInfoItemEstoque);
+        containerInfoItems.add(textFieldInfoItemPreco);
+        containerInfoItems.add(labelTextProduto);
+        containerInfoItems.add(textFieldInfoItemProduto);
+        containerInfoItems.add(labelTextTipo);
+        containerInfoItems.add(buttonType);
+        containerInfoItems.add(labelTextMarca);
+        containerInfoItems.add(buttonBrand);
+        containerInfoItems.add(comboBoxInfoItemTipo);
+        containerInfoItems.add(comboBoxInfoItemMarca);
+        return containerInfoItems;
     }
     
-    private JPanel containerEastEditSouth() {
-    	containerEastEditSouth = buildMethod.createPanel(31.5, 7, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
+    
+    private JPanel containerButtons() {
+    	containerButtons = buildMethod.createPanel(31.5, 7, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
 
         buttonNew = buildMethod.createButton("Novo", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
         buttonDel = buildMethod.createButton("Deletar", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
@@ -457,12 +432,12 @@ public class BuildMAdmin {
 			}
 		});
         
-        containerEastEditSouth.add(buttonNew);
-        containerEastEditSouth.add(buttonDel);
-        containerEastEditSouth.add(buttonSave);
-        containerEastEditSouth.add(buttonEdit);
+        containerButtons.add(buttonNew);
+        containerButtons.add(buttonDel);
+        containerButtons.add(buttonSave);
+        containerButtons.add(buttonEdit);
         
-        return containerEastEditSouth;
+        return containerButtons;
     }
     
     public void setTextItemsInTabela() {
@@ -472,14 +447,14 @@ public class BuildMAdmin {
         textFieldInfoItemEstoque.setEditable(false);
         textFieldInfoItemPreco.setEditable(false);
         
-        int selectedRow = tabela.getSelectedRow();
+        int selectedRow = tabelaItems.getSelectedRow();
         if (selectedRow != -1) {
-            Object codigo = tabela.getValueAt(selectedRow, 0);
-            Object produto = tabela.getValueAt(selectedRow, 1);
-            Object tipo = tabela.getValueAt(selectedRow, 2);
-            Object marca = tabela.getValueAt(selectedRow, 3);
-            Object estoque = tabela.getValueAt(selectedRow, 4);
-            Object preco = tabela.getValueAt(selectedRow, 5);
+            Object codigo = tabelaItems.getValueAt(selectedRow, 0);
+            Object produto = tabelaItems.getValueAt(selectedRow, 1);
+            Object tipo = tabelaItems.getValueAt(selectedRow, 2);
+            Object marca = tabelaItems.getValueAt(selectedRow, 3);
+            Object estoque = tabelaItems.getValueAt(selectedRow, 4);
+            Object preco = tabelaItems.getValueAt(selectedRow, 5);
 
             labelInfoItemCodigo.setText(codigo.toString());
             textFieldInfoItemProduto.setText(produto.toString());
@@ -515,7 +490,7 @@ public class BuildMAdmin {
     }
 
     public void reload() throws SQLException {
-        list();
+        listItems();
         listTypes();
         listBrands();
         clearForm();

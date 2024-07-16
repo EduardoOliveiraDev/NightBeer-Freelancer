@@ -16,8 +16,6 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -25,12 +23,9 @@ import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.AbstractDocument;
 
 import com.nightbeer.dao.brandsDAO;
 import com.nightbeer.dao.typesDAO;
-import com.nightbeer.view.mAdmin;
-import com.nightbeer.view.mPrincipal;
 
 public class BuildSearchBar {
     private BuildMethods buildMethod = new BuildMethods();
@@ -44,12 +39,12 @@ public class BuildSearchBar {
     private JTable tabela;
     
     private JPanel containerSearch;
-    private JPanel searchPanel;
+    private JPanel searchPanelComponents;
     private JTextField textFieldSearch;
     private JButton buttonClearFilter; 
     private JComboBox<String> comboBoxType; 
     private JComboBox<String> comboBoxBrand; 
-    
+
     public ImageIcon iconClearFilter = buildMethod.createImage("../images/iconClearFilter.png", 35, 35);
     
     public BuildSearchBar(JTable tabela) {
@@ -83,7 +78,8 @@ public class BuildSearchBar {
         marcas.forEach(marca -> comboBoxBrand.addItem(marca)); 
     }
     
-    public JPanel containerSearch() throws SQLException {
+    @SuppressWarnings("unchecked")
+	public JPanel containerSearchMain() throws SQLException {
         containerSearch = buildMethod.createPanel(100, 7, null, colorBackgroundWhite, 0,0,0,0);
         containerSearch.setLayout(new BoxLayout(containerSearch, BoxLayout.Y_AXIS));
         containerSearch.add(Box.createVerticalGlue());
@@ -94,9 +90,47 @@ public class BuildSearchBar {
         buttonClearFilter = buildMethod.createButton("", 3, 4, SwingConstants.CENTER, colorTextBlack, colorBackgroundWhite);
         buttonClearFilter.setIcon(iconClearFilter);
         
+        inicialiteFunctions();
+
+        searchPanelComponents = buildMethod.createPanel(100, 5, new FlowLayout(FlowLayout.LEFT), colorBackgroundWhite, 0,0,0,0);
+        searchPanelComponents.add(textFieldSearch);
+        searchPanelComponents.add(comboBoxType);
+        searchPanelComponents.add(comboBoxBrand);
+        searchPanelComponents.add(buttonClearFilter);
+        containerSearch.add(searchPanelComponents);
+        return containerSearch;
+    }
+    
+    private void applyFilters() {
+        if (tabela != null) {
+            DefaultTableModel modelo = (DefaultTableModel) tabela.getModel();
+            TableRowSorter<DefaultTableModel> trs = new TableRowSorter<>(modelo);
+            tabela.setRowSorter(trs);
+
+            List<RowFilter<Object, Object>> filters = new ArrayList<>();
+
+            String selectedTipo = (String) comboBoxType.getSelectedItem();
+            if (selectedTipo != null && !selectedTipo.isEmpty()) {
+                filters.add(RowFilter.regexFilter("(?i)" + selectedTipo, 2));
+            }
+
+            String selectedMarca = (String) comboBoxBrand.getSelectedItem();
+            if (selectedMarca != null && !selectedMarca.isEmpty()) {
+                filters.add(RowFilter.regexFilter("(?i)" + selectedMarca, 3));
+            }
+
+            String textFilter = textFieldSearch.getText().trim();
+            if (!textFilter.isEmpty()) {
+                filters.add(RowFilter.regexFilter("(?i)" + textFilter, 0, 1, 2, 3));
+            }
+
+            trs.setRowFilter(RowFilter.andFilter(filters));
+        }
+    }
+
+    private void inicialiteFunctions() throws SQLException {
         listTypes();
-        listBrands();
- 
+        listBrands(); 
         comboBoxType.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String selectedTipo = (String) comboBoxType.getSelectedItem();
@@ -150,40 +184,5 @@ public class BuildSearchBar {
 			}
 		});
         
-        searchPanel = buildMethod.createPanel(100, 5, new FlowLayout(FlowLayout.LEFT), colorBackgroundWhite, 0,0,0,0);
-        searchPanel.add(textFieldSearch);
-        searchPanel.add(comboBoxType);
-        searchPanel.add(comboBoxBrand);
-        searchPanel.add(buttonClearFilter);
-        containerSearch.add(searchPanel);
-        return containerSearch;
     }
-    
-    private void applyFilters() {
-        if (tabela != null) {
-            DefaultTableModel modelo = (DefaultTableModel) tabela.getModel();
-            TableRowSorter<DefaultTableModel> trs = new TableRowSorter<>(modelo);
-            tabela.setRowSorter(trs);
-
-            List<RowFilter<Object, Object>> filters = new ArrayList<>();
-
-            String selectedTipo = (String) comboBoxType.getSelectedItem();
-            if (selectedTipo != null && !selectedTipo.isEmpty()) {
-                filters.add(RowFilter.regexFilter("(?i)" + selectedTipo, 2));
-            }
-
-            String selectedMarca = (String) comboBoxBrand.getSelectedItem();
-            if (selectedMarca != null && !selectedMarca.isEmpty()) {
-                filters.add(RowFilter.regexFilter("(?i)" + selectedMarca, 3));
-            }
-
-            String textFilter = textFieldSearch.getText().trim();
-            if (!textFilter.isEmpty()) {
-                filters.add(RowFilter.regexFilter("(?i)" + textFilter, 0, 1, 2, 3));
-            }
-
-            trs.setRowFilter(RowFilter.andFilter(filters));
-        }
-    }
-
 }

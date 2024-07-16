@@ -71,8 +71,8 @@ public class mPrincipal extends JFrame{
 	
 	public void BuildingViewMPrincipal() throws SQLException {    
 		// NavBar
-		navBar.panelLeftIconAndText("  NightBeer Lounge");
-		navBar.panelRightButtons(navBar.iconUser);
+		navBar.panelLogoAndTitle("  NightBeer Lounge");
+		navBar.panelButtons(navBar.iconUser);
 		navBar.getFrame(this);
 	    contentPane.add(navBar.containerNavBar(), BorderLayout.NORTH);
 	    
@@ -80,7 +80,7 @@ public class mPrincipal extends JFrame{
 	    contentPane.add(buildMPrincipal.containerCenter(), BorderLayout.CENTER);
 	    
 	    // Container East
-	    contentPane.add(buildMPrincipal.containerEast(), BorderLayout.EAST);
+	    contentPane.add(buildMPrincipal.containerTableBuyAndRequest(), BorderLayout.EAST);
 	}
 	
 	public static mPrincipal getInstance() {

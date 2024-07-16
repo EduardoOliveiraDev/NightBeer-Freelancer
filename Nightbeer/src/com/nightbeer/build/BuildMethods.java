@@ -21,7 +21,6 @@ public class BuildMethods{
 	public Color colorBackgroundWhite = createColor(203, 203, 203); //203
 	
 	public Color colorWhiteClear = createColor(255, 255, 255);
-
 	
 	public Font FontRobotoPlain16 = createFont("Roboto", Font.BOLD, 16);
 	public Font FontRobotoPlain18 = createFont("Roboto", Font.BOLD, 18); 

@@ -33,7 +33,7 @@ public class mAdmin extends JFrame{
           
         addWindowListener(new WindowAdapter() {
             public void windowActivated(WindowEvent evt) {
-                buildMAdmin.list();
+                buildMAdmin.listItems();
             }
             
         });
@@ -57,8 +57,8 @@ public class mAdmin extends JFrame{
 	}
     
 	public void BuildingViewMadmin() throws SQLException {
-		navBar.panelLeftIconAndText("  NightBeer Admin");
-		navBar.panelRightButtons(navBar.iconBack);
+		navBar.panelLogoAndTitle("  NightBeer Admin");
+		navBar.panelButtons(navBar.iconBack);
 		navBar.getFrame(this);
 	    contentPane.add(navBar.containerNavBar(), BorderLayout.NORTH);
 	    

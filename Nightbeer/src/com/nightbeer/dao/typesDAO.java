@@ -18,7 +18,7 @@ public class typesDAO {
     public typesDAO() {
         this.connection = new connectionSQL().getConnect();
     }
-	 
+ 	 
     public void saveTypes(String newType) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement("INSERT INTO tipo (tipo) VALUES(?)");
 
@@ -119,8 +119,6 @@ public class typesDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        
-
         return tipos;
     }
 	

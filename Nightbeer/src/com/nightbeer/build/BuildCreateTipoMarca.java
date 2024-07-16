@@ -37,7 +37,7 @@ public class BuildCreateTipoMarca {
 	
 	private JPanel containerMain;
 
-	private JPanel containerCenterWest;
+	private JPanel containerTypes;
 	private JLabel labelTextTypeSelectedTitle;
 	private JComboBox<String> comboBoxTypes;
 	private JLabel labelTextTypeTitle;
@@ -48,7 +48,7 @@ public class BuildCreateTipoMarca {
 	private JButton buttonTypeSave;
 	private JButton buttonTypeEdit;
 
-	private JPanel containerCenterEast;
+	private JPanel containerBrands;
 	private JLabel labelTextBrandSelectedTitle;
 	private JComboBox<String> comboBoxBrand;
 	private JLabel labelTextBrandTitle;
@@ -98,7 +98,7 @@ public class BuildCreateTipoMarca {
         listTypes();
         return contentPane;
 	}
-	
+	 
 	public JPanel headerContainer(JFrame frame) {
 		containerNavBar = buildMethod.createPanel(100, 5, new BorderLayout(), colorBackgroundWhite, 0,0,25,0);
 		buttonClose = buildMethod.createButton("X", 2.2, 2.5, SwingConstants.CENTER, colorTextWhite, colorButtonClose);
@@ -121,8 +121,9 @@ public class BuildCreateTipoMarca {
 		return containerMain;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public JPanel containerTypes() {
-		containerCenterWest = buildMethod.createPanel(0, 0, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
+		containerTypes = buildMethod.createPanel(0, 0, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
 		
 		labelTextTypeSelectedTitle = buildMethod.createLabel("Selecione o tipo: ", 15, 2, SwingConstants.LEFT, colorTextBlack, colorBackgroundWhite, FontRobotoPlainSmall, 0, 0, 0, 0);
 		comboBoxTypes = (JComboBox<String>) buildMethod.createComboBox("", 15, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 0, 0, 0);
@@ -161,23 +162,23 @@ public class BuildCreateTipoMarca {
         });
 		
 		startFunctionsTypesButtons();
-		
 		containerButtonsTypes.add(buttonTypeNew);
 		containerButtonsTypes.add(buttonTypeDel);
 		containerButtonsTypes.add(buttonTypeSave);
 		containerButtonsTypes.add(buttonTypeEdit);
 		
-		containerCenterWest.add(labelTextTypeSelectedTitle);
-		containerCenterWest.add(comboBoxTypes);
-		containerCenterWest.add(labelTextTypeTitle);
-		containerCenterWest.add(textfieldType);
+		containerTypes.add(labelTextTypeSelectedTitle);
+		containerTypes.add(comboBoxTypes);
+		containerTypes.add(labelTextTypeTitle);
+		containerTypes.add(textfieldType);
 		
-		containerCenterWest.add(containerButtonsTypes);
-		return containerCenterWest;
+		containerTypes.add(containerButtonsTypes);
+		return containerTypes;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public JPanel containerBrands() {
-		containerCenterEast = buildMethod.createPanel(0, 0, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
+		containerBrands = buildMethod.createPanel(0, 0, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
 		labelTextBrandSelectedTitle = buildMethod.createLabel("Selecione a marca: ", 15, 2, SwingConstants.LEFT, colorTextBlack, colorBackgroundWhite, FontRobotoPlainSmall, 0, 0, 0, 0);
 		comboBoxBrand = (JComboBox<String>) buildMethod.createComboBox("", 15, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 0, 0, 0);
 		
@@ -202,19 +203,18 @@ public class BuildCreateTipoMarca {
 		});
 
 		startFunctionsBrandButtons();
-		
 		containerButtonsBrands.add(buttonBrandNew);
 		containerButtonsBrands.add(buttonBrandDel);
 		containerButtonsBrands.add(buttonBrandSave);
 		containerButtonsBrands.add(buttonBrandEdit);
 		
-		containerCenterEast.add(labelTextBrandSelectedTitle);
-		containerCenterEast.add(comboBoxBrand);
-		containerCenterEast.add(labelTextBrandTitle);
-		containerCenterEast.add(textfieldBrand);
+		containerBrands.add(labelTextBrandSelectedTitle);
+		containerBrands.add(comboBoxBrand);
+		containerBrands.add(labelTextBrandTitle);
+		containerBrands.add(textfieldBrand);
 		
-		containerCenterEast.add(containerButtonsBrands);
-		return containerCenterEast;
+		containerBrands.add(containerButtonsBrands);
+		return containerBrands;
 	}
 	
 	public void reloadComboBox(JComboBox<String> comboBox, String tipo) throws SQLException {
@@ -319,7 +319,6 @@ public class BuildCreateTipoMarca {
 					e1.printStackTrace();
 				}
 
-		        // Convert existing brands to lowercase for comparison
 		        existingBrands = existingBrands.stream()
 		                                       .map(String::toLowerCase)
 		                                       .collect(Collectors.toList());

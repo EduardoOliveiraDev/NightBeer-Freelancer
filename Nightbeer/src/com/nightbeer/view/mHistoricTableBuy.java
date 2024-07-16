@@ -14,13 +14,13 @@ import com.nightbeer.build.BuildCreateTipoMarca;
 import com.nightbeer.build.BuildMethods;
 import com.nightbeer.build.BuildHistoricBuy;
 
-public class mPreviusTableBuy extends JFrame {
+public class mHistoricTableBuy extends JFrame {
 	private JPanel contentPane;
 	private BuildHistoricBuy buildHistoricBuy = new BuildHistoricBuy();
-	private static mPreviusTableBuy instance;
+	private static mHistoricTableBuy instance;
 
 	
-	public mPreviusTableBuy() {
+	public mHistoricTableBuy() {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("Compra anterior");
         setResizable(false);
@@ -39,7 +39,7 @@ public class mPreviusTableBuy extends JFrame {
 	
 	
 	
-	public static mPreviusTableBuy getInstance() {
+	public static mHistoricTableBuy getInstance() {
 	    return instance;
 	}
 	
@@ -51,7 +51,7 @@ public class mPreviusTableBuy extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					mPreviusTableBuy frame = new mPreviusTableBuy();
+					mHistoricTableBuy frame = new mHistoricTableBuy();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

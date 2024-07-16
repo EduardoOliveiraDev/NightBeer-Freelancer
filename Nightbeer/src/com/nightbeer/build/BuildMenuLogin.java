@@ -11,41 +11,35 @@ import com.nightbeer.view.mPrincipal;
 
 public class BuildMenuLogin {
     private BuildMethods buildMethod = new BuildMethods();
-	private BuildMPrincipal buildMPrincipal = new BuildMPrincipal();
-    private Color colorButton = buildMethod.colorButton;
-    private Color colorTextWhite = buildMethod.colorTextWhite;
-    private Color colorButtonClose = buildMethod.colorButtonClose;
-    private Color colorBlackBackground = buildMethod.colorBackgroundBlack;
-    private Color colorButtonGrey = buildMethod.colorButtonGrey;
-
     
+    private Color colorButton = buildMethod.colorButton;
+    private Color colorButtonClose = buildMethod.colorButtonClose;
+    private Color colorButtonGrey = buildMethod.colorButtonGrey;
+    private Color colorBlackBackground = buildMethod.colorBackgroundBlack;
+    private Color colorTextWhite = buildMethod.colorTextWhite;
+
     private Font FontRobotoPlainSmall = buildMethod.FontRobotoPlain16;
     
-    private JPanel topContainer;
-    private JPanel centerContainer;
-    private JPanel panelMain; 
-    
-    private JLabel labelTitle;
+    private JPanel containerNavBar;
     private JButton buttonClose;
-    private JButton buttonSend;
-    
+
+    private JPanel containerComponentes;
     private JLabel labelUser;
     private JLabel labelPassword;
     private JLabel labelPasswordError;
     private JTextField textFieldUser;
-    private JPasswordField textFieldPassword;      
+    private JPasswordField textFieldPassword;   
+    
+    private JPanel panelMain; 
+    private JButton buttonSend;
     
     
     public JPanel buildLoginPanel(JFrame frame) {
         openFrame(frame);
-        blockingPanel(frame);  // Call this before initialize()
+        blockingPanel(frame);
         initialize(frame);
         
-        // Create and setup the panel
-        JPanel contentPane = new JPanel();
-        contentPane.setLayout(new BorderLayout());
-        
-        // Add components to the panel
+        JPanel contentPane = new JPanel(new BorderLayout());
         contentPane.add(panelMain);
         return contentPane;
     }
@@ -53,33 +47,26 @@ public class BuildMenuLogin {
     public JPanel blockingPanel(JFrame frame) {
         panelMain = new JPanel(new BorderLayout());
         panelMain.setBackground(colorBlackBackground);
-        
-        containerTop();
-        containerCenter();
-        
-        panelMain.add(topContainer, BorderLayout.NORTH);
-        panelMain.add(centerContainer, BorderLayout.CENTER);
+        panelMain.add(navBarContainer(), BorderLayout.NORTH);
+        panelMain.add(loginComponents(), BorderLayout.CENTER);
         return panelMain;
     }
     
-    public JPanel containerTop() {
-        topContainer = new JPanel(new BorderLayout());
+    public JPanel navBarContainer() {
+        containerNavBar = new JPanel(new BorderLayout());
         buttonClose = buildMethod.createButton("X", 2.4, 2.6, SwingConstants.CENTER, colorTextWhite, colorButtonClose);
         buttonClose.setFont(FontRobotoPlainSmall);
         
-        topContainer.add(buttonClose, BorderLayout.EAST);
-        topContainer.setBackground(colorBlackBackground);
-        
-        return topContainer;
+        containerNavBar.add(buttonClose, BorderLayout.EAST);
+        containerNavBar.setBackground(colorBlackBackground);
+        return containerNavBar;
     }
     
-    public JPanel containerCenter() {
-        centerContainer = new JPanel(new FlowLayout());
-        centerContainer.setBackground(colorBlackBackground);
+    public JPanel loginComponents() {
+        containerComponentes = new JPanel(new FlowLayout());
+        containerComponentes.setBackground(colorBlackBackground);
         
-        JPanel blocking = new JPanel();
-        blocking.setLayout(new BorderLayout());
-    
+        JPanel blockingComponents = new JPanel(new BorderLayout());
         JPanel componentsLogin = new JPanel(new GridLayout(5, 1));
         
         labelUser = buildMethod.createLabel("Usuario", 4, 3, SwingConstants.LEFT, colorTextWhite, colorBlackBackground, FontRobotoPlainSmall, 0,0,0,0);
@@ -101,42 +88,45 @@ public class BuildMenuLogin {
         buttonSend = buildMethod.createButton("Enviar", 5, 3, SwingConstants.CENTER, colorTextWhite, colorButton);
         bottomContainer.add(buttonSend, BorderLayout.EAST);
         
-        blocking.add(componentsLogin, BorderLayout.CENTER);
-        blocking.add(bottomContainer, BorderLayout.SOUTH);
+        blockingComponents.add(componentsLogin, BorderLayout.CENTER);
+        blockingComponents.add(bottomContainer, BorderLayout.SOUTH);
         
-        centerContainer.add(blocking);
-        
-        return centerContainer;
+        containerComponentes.add(blockingComponents);
+        return containerComponentes;
     }
      
-    public void initialize(JFrame frame) {
-        buttonClose.addActionListener(e -> frame.dispose());
+    @SuppressWarnings("deprecation")
+	public void initialize(JFrame frame) {
+    	buttonClose.addActionListener(e -> frame.dispose());
         
-        buttonSend.addActionListener(e -> {
-            dados msDados = new dados();
-            if (!msDados.validUser(textFieldUser.getText(), textFieldPassword.getText())) {
-                textFieldUser.setText("");
-                textFieldPassword.setText("");
-                textFieldUser.requestFocusInWindow();
-                labelPasswordError.setForeground(new Color(200, 0, 0));
-            } else {
-                mAdmin mAdmin = null;
-				try {
-					mAdmin = new mAdmin();
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-                mAdmin.setVisible(true);
-                mAdmin.setBounds(BuildMethods.bounds);
-              
-                // close login menu
-                frame.dispose();
-                
-                // close menu principal
-                mPrincipal.getInstance().getFrame().dispose();
-            }
-        });
+        if (buttonSend != null) {
+            buttonSend.addActionListener(e -> {
+                dados msDados = new dados();
+                if (!msDados.validUser(textFieldUser.getText(), textFieldPassword.getText())) {
+                    textFieldUser.setText("");
+                    textFieldPassword.setText("");
+                    textFieldUser.requestFocusInWindow();
+                    labelPasswordError.setForeground(new Color(200, 0, 0));
+                } else {
+                    mAdmin mAdmin = null;
+                    try {
+                        mAdmin = new mAdmin();
+                    } catch (SQLException e1) {
+                        e1.printStackTrace();
+                    }
+                    mAdmin.setVisible(true);
+                    mAdmin.setBounds(BuildMethods.bounds);
+                  
+                    // close login menu
+                    frame.dispose();
+                    
+                    // close menu principal
+                    mPrincipal.getInstance().getFrame().dispose();
+                }
+            });
+        } else {
+            System.err.println("Botão buttonSend não foi inicializado corretamente.");
+        }
         
         frame.getRootPane().setDefaultButton(buttonSend);
     }

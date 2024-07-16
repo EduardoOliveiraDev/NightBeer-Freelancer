@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,6 +18,7 @@ import javax.swing.SwingConstants;
 
 import com.nightbeer.view.mAdmin;
 import com.nightbeer.view.mLogIn;
+import com.nightbeer.view.mHistoricTableBuy;
 import com.nightbeer.view.mPrincipal;
 
 public class BuildNavBar {
@@ -24,7 +26,6 @@ public class BuildNavBar {
     private Color colorTextWhite = buildMethod.colorTextWhite;
     private Color colorBlackBackground = buildMethod.colorBackgroundBlack;
     private Color colorBackgroundWhite = buildMethod.colorBackgroundWhite;
-    
 
     private Color colorButton = buildMethod.colorButton;
     private Color colorButtonClose = buildMethod.colorButtonClose;
@@ -32,27 +33,31 @@ public class BuildNavBar {
     private Font FontRobotoPlainLarge = buildMethod.FontRobotoPlain22;
     
     private JLabel labelNavBarTitle;
+    private JButton buttonHistoric;
     private JButton buttonAccess;
     private JButton buttonMinimize;
     private JButton buttonExit;
 
     private JFrame frame;
     
-    private JPanel painelNavBarWest; 
-    private JPanel painelNavBarEast;
+    private JPanel painelLogoAndTitle; 
+    private JPanel painelButtons;
     
     public ImageIcon iconUser = buildMethod.createImage("../images/iconUserLogin.png", 35, 35);
     public ImageIcon iconBack = buildMethod.createImage("../images/iconGoBack.png", 35, 35);
+    public ImageIcon iconHistoric  = buildMethod.createImage("../images/iconHistoric.png", 35, 35);
     private JLabel icon = buildMethod.createIcon("../images/nightbeerIcon.jpg", 70, 70);
     
     public BuildNavBar() {
         initializeComponents();
         initialize();
     }
-    
+     
     private void initializeComponents() {
         labelNavBarTitle = buildMethod.createLabel("", 22, 0, SwingConstants.LEFT, colorTextWhite, buildMethod.colorBackgroundBlack, FontRobotoPlainLarge, 0,0,0,0);
-        buttonAccess = buildMethod.createButton("", 5.5, 5.5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
+        buttonAccess = buildMethod.createButton("", 5, 5.5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
+        buttonAccess.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 40, colorBlackBackground));
+        buttonHistoric = buildMethod.createButton("", 3, 5.5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
         buttonMinimize = buildMethod.createButton("-", 2.2, 2.5, SwingConstants.CENTER, colorTextWhite, colorButton);
         buttonExit = buildMethod.createButton("X", 2.2, 2.5, SwingConstants.CENTER, colorTextWhite, colorButtonClose);
         
@@ -64,41 +69,38 @@ public class BuildNavBar {
         JPanel painelNavBar = buildMethod.createPanel(100, 6, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
         painelNavBar.setBackground(buildMethod.colorBackgroundBlack);
         
-        painelNavBar.add(painelNavBarWest, BorderLayout.WEST);
-        painelNavBar.add(painelNavBarEast, BorderLayout.EAST);
-
+        painelNavBar.add(painelLogoAndTitle, BorderLayout.WEST);
+        painelNavBar.add(painelButtons, BorderLayout.EAST);
         return painelNavBar;
     }
     
-    public JPanel panelLeftIconAndText(String text) {
-        painelNavBarWest = buildMethod.createPanel(30, 0, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
-        painelNavBarWest.setBackground(colorBlackBackground);
+    public JPanel panelLogoAndTitle(String text) {
+        painelLogoAndTitle = buildMethod.createPanel(30, 0, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
+        painelLogoAndTitle.setBackground(colorBlackBackground);
         
         labelNavBarTitle.setText(text);
 
-        painelNavBarWest.add(icon, BorderLayout.WEST);
-        painelNavBarWest.add(labelNavBarTitle, BorderLayout.CENTER);
-        return painelNavBarWest;
+        painelLogoAndTitle.add(icon, BorderLayout.WEST);
+        painelLogoAndTitle.add(labelNavBarTitle, BorderLayout.CENTER);
+        return painelLogoAndTitle;
     }
     
-    public JPanel panelRightButtons(ImageIcon icon) {
-        painelNavBarEast = buildMethod.createPanel(20, 0, new FlowLayout(FlowLayout.RIGHT), colorBackgroundWhite, 0,0,0,0);
-        painelNavBarEast.setBackground(buildMethod.colorBackgroundBlack);
+    public JPanel panelButtons(ImageIcon icon) {
+        painelButtons = buildMethod.createPanel(20, 0, new FlowLayout(FlowLayout.RIGHT), colorBackgroundWhite, 0,0,0,0);
+        painelButtons.setBackground(buildMethod.colorBackgroundBlack);
         
+        buttonHistoric.setIcon(iconHistoric);
         buttonAccess.setIcon(icon);
         
-        painelNavBarEast.add(buttonAccess);
-        painelNavBarEast.add(buttonMinimize);
-        painelNavBarEast.add(buttonExit);
-        return painelNavBarEast;
+        painelButtons.add(buttonHistoric);
+        painelButtons.add(buttonAccess);
+        painelButtons.add(buttonMinimize);
+        painelButtons.add(buttonExit);
+        return painelButtons;
     }
     
     public void replaceFunctionButton() throws SQLException {
-    	
-    	// Checking visibility of the mainframe
         boolean visible = mPrincipal.getInstance().getVisibleFrame();
-        
-        // Checking for replace a button command to do open a Login Menu or Mainframe (mPrincipal)
         if (visible) {
             mLogIn mLogIn = new mLogIn();
             mLogIn.setVisible(true);
@@ -107,19 +109,23 @@ public class BuildNavBar {
             mPrincipal.setVisible(true);
             mPrincipal.setBounds(BuildMethods.bounds);
             
-            // close mAdmin frame
             mAdmin.getInstance().getFrame().dispose();
         }
     }
     
     public void initialize() {
-        
-        // Minimize Button
         buttonMinimize.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 frame.setExtendedState(JFrame.ICONIFIED);
             }
         });
+        
+        buttonHistoric.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mHistoricTableBuy mHistoricTableBuy = new mHistoricTableBuy();
+				mHistoricTableBuy.setVisible(true);
+			}
+		});
     }
     
     public void addCloseButtonListener(ActionListener listener) {
