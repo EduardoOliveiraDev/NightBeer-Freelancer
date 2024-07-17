@@ -20,9 +20,11 @@ public class itemsDAO {
         this.connection = new connectionSQL().getConnect();
     }
     
-    public int getEstoque(int codigo) {
-        String sql = "SELECT estoque FROM items WHERE codigo = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+    public int getEstoque(int codigo) throws SQLException {
+    	PreparedStatement stmt = connection.prepareStatement
+    			("SELECT estoque FROM items WHERE codigo = ?");
+    	
+        try {
             stmt.setInt(1, codigo);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -30,26 +32,33 @@ public class itemsDAO {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
+            JOptionPane.showMessageDialog(null, "Erro ao pegar quantidade do estoque");
+        } finally {
+			stmt.close();
+		}
+		return codigo;
     } 
     
-    public void updateEstoque(int codigo, int novoEstoque) {
-        String sql = "UPDATE items SET estoque = ? WHERE codigo = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+    public void updateEstoque(int codigo, int novoEstoque) throws SQLException {
+    	PreparedStatement stmt = connection.prepareStatement
+    			("UPDATE items SET estoque = ? WHERE codigo = ?");
+    	
+        try {
             stmt.setInt(1, novoEstoque);
             stmt.setInt(2, codigo);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar o estoque");
+        } finally {
+			stmt.close();
+		}
     }
     
-    public void saveItems(items item) {
-        String sql = "INSERT INTO items (produto, tipo, marca, estoque, preco) VALUES (?, ?, ?, ?, ?)";
-        try ( 
-            PreparedStatement stmt = connection.prepareStatement(sql)) {
+    public void saveItems(items item) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement
+        		("INSERT INTO items (produto, tipo, marca, estoque, preco) VALUES (?, ?, ?, ?, ?)");
+        
+        try {
             stmt.setString(1, item.getProduto());
             stmt.setString(2, item.getTipo());
             stmt.setString(3, item.getMarca());
@@ -57,13 +66,18 @@ public class itemsDAO {
             stmt.setDouble(5, item.getPreco());
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            JOptionPane.showMessageDialog(null, "Erro ao salvar Items");
+
+        } finally {
+			stmt.close();
+		}
     }
 
-    public void editItems(items item) {
-        String sql = "UPDATE items SET produto = ?, tipo = ?, marca = ?, estoque = ?, preco = ? WHERE codigo = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+    public void editItems(items item) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement
+        		("UPDATE items SET produto = ?, tipo = ?, marca = ?, estoque = ?, preco = ? WHERE codigo = ?");
+        
+        try {
             stmt.setString(1, item.getProduto());
             stmt.setString(2, item.getTipo());
             stmt.setString(3, item.getMarca());
@@ -75,33 +89,33 @@ public class itemsDAO {
             updateEstoque(item.getCodigo(), item.getEstoque());
             
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
+            JOptionPane.showMessageDialog(null, "Erro ao editar o item");
+        }finally {
+			stmt.close();
+		}
     }
     
-    public void deleteItem(int codigo) {
-        try {
-        	String sql = "DELETE FROM items WHERE codigo = ?";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            
+    public void deleteItem(int codigo) throws SQLException {
+    	PreparedStatement stmt = connection.prepareStatement
+        		("DELETE FROM items WHERE codigo = ?");
+    	
+    	try {
             stmt.setInt(1, codigo);
             stmt.executeUpdate();
-            stmt.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao deletar a Marca: " + e.getMessage());
-            e.printStackTrace();
-        }
+            JOptionPane.showMessageDialog(null, "Erro ao deletar a Marca");
+        } finally {
+			stmt.close();
+		}
     }
     
-    public List<items> listar() {
+    public List<items> listar() throws SQLException {
         List<items> lista = new ArrayList<>();
-
+        PreparedStatement stmt = connection.prepareStatement
+        		("SELECT * FROM items");
         
+        ResultSet rs = stmt.executeQuery();
         try {
-            String sql = "SELECT * FROM items";
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-
             while (rs.next()) {
                 items obj = new items();
                 obj.setCodigo(rs.getInt("codigo"));
@@ -115,21 +129,24 @@ public class itemsDAO {
             return lista;
 
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Erro ao criar a lista" + e);
-        }
+            JOptionPane.showMessageDialog(null, "Erro ao criar a lista");
+        } finally {
+        	rs.close();
+			stmt.close();
+		}
 
         return lista;
     }
     
     public items getItemById(int id) throws SQLException {
-    	items item = null;
-    	ResultSet rs = null;
-    	PreparedStatement stmt = connection.prepareStatement("SELECT * FROM items WHERE codigo = ?");
-    	
-    	try {
-			stmt.setInt(1, id);
-			rs = stmt.executeQuery();
-    		
+        items item = null;
+        ResultSet rs = null;
+        PreparedStatement stmt = connection.prepareStatement("SELECT * FROM items WHERE codigo = ?");
+        
+        try {
+            stmt.setInt(1, id); 
+            rs = stmt.executeQuery();
+            
             if (rs.next()) {
                 item = new items();
                 item.setCodigo(rs.getInt("codigo"));
@@ -139,22 +156,15 @@ public class itemsDAO {
                 item.setEstoque(rs.getInt("estoque"));
                 item.setPreco(rs.getDouble("preco"));
             }
-    		
-    	} catch (SQLException ex) {
-            System.out.println("Erro ao buscar item por ID: " + ex.getMessage());
+        } catch (SQLException ex) {
+            System.out.println("Erro ao buscar item por ID");
             throw ex; 
         } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmt != null) {
-                stmt.close();
-            }
-            if (connection != null) {
-            	connection.close();
-            }
+        	rs.close();
+        	stmt.close();
         }
-    	return item;
+        return item;
     }
+
 
 }

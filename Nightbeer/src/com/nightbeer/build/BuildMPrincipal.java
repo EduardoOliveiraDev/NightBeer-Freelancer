@@ -17,7 +17,6 @@ import javax.swing.text.AbstractDocument;
 import com.nightbeer.dao.itemsDAO;
 import com.nightbeer.dao.purchasesHistoricDAO;
 import com.nightbeer.model.items;
-import com.nightbeer.view.mHistoricTableBuy;
 import com.nightbeer.view.mPrincipal;
 
 public class BuildMPrincipal {
@@ -61,7 +60,6 @@ public class BuildMPrincipal {
     
     private JPanel containerTableBuy;
     private JTable tabelaBuy;
-    private JButton buttonPreviusBuy;
     private DefaultTableModel dadosBuy;
     
     private JPanel containerRequestButtons;
@@ -75,7 +73,11 @@ public class BuildMPrincipal {
     
     public BuildMPrincipal() {
         returnItemsTimer = new Timer(600000, e -> { // 600.000 = 10 minutos
-            returnItemsToStock();
+            try {
+				returnItemsToStock();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
             refreshTotalPrice(); 
             returnItemsTimer.stop(); 
         });
@@ -83,7 +85,7 @@ public class BuildMPrincipal {
 
     }
     
-    public void listItems() {
+    public void listItems() throws SQLException {
         itemsDAO dao = new itemsDAO();
         List<items> lista = dao.listar();
         dadosItems.setNumRows(0);
@@ -125,9 +127,13 @@ public class BuildMPrincipal {
     
 	public JPanel containerCenter() throws SQLException {
         JPanel containerCenter = buildMethod.createPanel(65, 100, new BorderLayout(), colorBackgroundWhite, 0,0,0,25);
+        
+        containerTableItems();
+        containerLabelsInfoItem();
+        
         containerCenter.add(new BuildSearchBar(tabelaItems).containerSearchMain(), BorderLayout.NORTH);
-        containerCenter.add(containerTableItems(), BorderLayout.CENTER);
-        containerCenter.add(containerLabelsInfoItem(), BorderLayout.SOUTH);
+        containerCenter.add(containerTableItems, BorderLayout.CENTER);
+        containerCenter.add(containerInfoItem, BorderLayout.SOUTH);
         return containerCenter;
     }
 
@@ -260,7 +266,11 @@ public class BuildMPrincipal {
         buttonAddingItemForTableBuy.setFont(FontRobotoPlainSmall);
         buttonAddingItemForTableBuy.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	addItemToCart();
+            	try {
+					addItemToCart();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             	clearItemInfoLabels();
             }
         });
@@ -269,7 +279,11 @@ public class BuildMPrincipal {
         buttonRemoveItemForTableBuy.setFont(FontRobotoPlainSmall);
         buttonRemoveItemForTableBuy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				removeItemFromCart();
+				try {
+					removeItemFromCart();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 				clearItemInfoLabels();
 			}
 		});
@@ -318,18 +332,7 @@ public class BuildMPrincipal {
         tabelaBuy.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         selectionModelBuy();
         
-        buttonPreviusBuy = buildMethod.createButton("Historico de Compras", 20, 3, SwingConstants.RIGHT, colorTextBlack, colorBackgroundWhite);
-        buttonPreviusBuy.setFont(FontRobotoPlainSmall);
-        
-        buttonPreviusBuy.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				mHistoricTableBuy buy = new mHistoricTableBuy();
-				buy.setVisible(true);
-			}
-		});
-        
         containerTableBuy.add(new JScrollPane(tabelaBuy));    
-        containerTableBuy.add(buttonPreviusBuy, BorderLayout.SOUTH);
         return containerTableBuy;
     }
     
@@ -364,7 +367,6 @@ public class BuildMPrincipal {
             }
         });
     }
-    
  
     public JPanel containerBuyRequest() {
         containerRequestButtons = buildMethod.createPanel(32, 25.5, new GridLayout(2,2), colorBackgroundWhite, 21,0,25,0);
@@ -386,7 +388,11 @@ public class BuildMPrincipal {
             public void actionPerformed(ActionEvent e) {
                 int response = JOptionPane.showConfirmDialog(mPrincipal.getInstance().getFrame(), "Você deseja limpar os items do carrinho?", "Confirmar limpeza", JOptionPane.YES_OPTION);
                 if (response == JOptionPane.YES_OPTION) {
-                    removeAllItemsFromCart();
+                    try {
+						removeAllItemsFromCart();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
                 }
             }
         });
@@ -398,8 +404,7 @@ public class BuildMPrincipal {
         return containerRequestButtons;
     }
     
-
-    private void removeAllItemsFromCart() {
+    private void removeAllItemsFromCart() throws SQLException {
         int rowCount = tabelaBuy.getRowCount();
         if (rowCount > 0) {
             itemsDAO itemsDAO = new itemsDAO();
@@ -431,7 +436,7 @@ public class BuildMPrincipal {
         returnItemsTimer.restart(); // Reiniciar o timer para mais 10 minutos
     }
     
-    public void returnItemsToStock() {
+    public void returnItemsToStock() throws SQLException {
     	if (dadosBuy.getRowCount() > 0) {
     		itemsDAO dao = new itemsDAO();
 
@@ -455,8 +460,7 @@ public class BuildMPrincipal {
         }
     }
     
-    
-    private void addItemToCart() {
+    private void addItemToCart() throws SQLException {
         int selectedRow = tabelaItems.getSelectedRow();
         if (selectedRow != -1) {
             Object codigo = tabelaItems.getValueAt(selectedRow, 0);
@@ -485,7 +489,7 @@ public class BuildMPrincipal {
         }
     }
    
-    private void removeItemFromCart() {
+    private void removeItemFromCart() throws SQLException {
         int selectedRowBuy = tabelaBuy.getSelectedRow();
         if (selectedRowBuy != -1) {
             int codigo = (int) dadosBuy.getValueAt(selectedRowBuy, 0);
@@ -551,42 +555,38 @@ public class BuildMPrincipal {
     }
     
     public void applyFilters() {
-    	itemsDAO dao = new itemsDAO();
-    	String codigoText = textFieldInfoItemCodigo.getText().trim();
-    	
-    	if (!codigoText.isEmpty()) {
-    	    try {
-    	        int codigo = Integer.parseInt(codigoText);
-    	        items item = dao.getItemById(codigo);
-    	        
-    	        if (item != null) {
-    	    	    for (int row = 0; row < tabelaItems.getRowCount(); row++) {
-    	    	        int codigoNaTabela = (int) tabelaItems.getValueAt(row, 0); 
-    	    	        
-    	    	        if (codigo == codigoNaTabela) {
-    	    	            tabelaItems.setRowSelectionInterval(row, row);
-    	    	            tabelaItems.scrollRectToVisible(tabelaItems.getCellRect(row, 0, true)); 
-    	    	            return; 
-    	    	        }
-    	    	    }
-    	        } else {
-    	        	clearItems();
-    	        }
-    	    } catch (NumberFormatException | SQLException ex) {
-    	        handleException(ex);
-    	    }
-    	} else {
-    	    clearItemInfoLabels();
-    	}
-    	
-    	
-    	
+        itemsDAO dao = new itemsDAO();
+        String codigoText = textFieldInfoItemCodigo.getText().trim();
+
+        if (!codigoText.isEmpty()) {
+            try {
+                int codigo = Integer.parseInt(codigoText);
+                items item = dao.getItemById(codigo);
+
+                if (item != null) {
+                    int rowCount = tabelaItems.getRowCount();
+                    for (int row = 0; row < rowCount; row++) {
+                        int codigoNaTabela = (int) tabelaItems.getValueAt(row, 0);
+                        if (codigo == codigoNaTabela) {
+                            tabelaItems.setRowSelectionInterval(row, row);
+                            tabelaItems.scrollRectToVisible(tabelaItems.getCellRect(row, 0, true));
+                            return;
+                        }
+                    }
+                } else {
+                    clearItems();
+                }
+            } catch (NumberFormatException | SQLException ex) {
+                handleException(ex);
+            }
+        } else {
+            clearItemInfoLabels();
+        }
     }
     
     private void handleException(Exception ex) {
-        ex.printStackTrace();
-        JOptionPane.showMessageDialog(mPrincipal.getInstance().getFrame(), "Ocorreu um erro ao processar a requisição.");
-        clearItemInfoLabels();
+        JOptionPane.showMessageDialog(null, "Erro ao buscar item: " + ex.getMessage());
+        ex.printStackTrace(); // Adicione esta linha para depurar exceções no console
     }
     
 }

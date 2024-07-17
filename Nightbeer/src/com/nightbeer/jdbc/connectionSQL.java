@@ -15,7 +15,7 @@ public class connectionSQL {
             Connection connectionSQL = DriverManager.getConnection(JDBC_url, JDBC_user, JDBC_password);
             return connectionSQL;
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, e);
+            JOptionPane.showMessageDialog(null, "Erro ao conectar-se ao banco de dados");
         }
 		return null;
     }

@@ -48,10 +48,10 @@ public class BuildSearchBar {
     public ImageIcon iconClearFilter = buildMethod.createImage("../images/iconClearFilter.png", 35, 35);
     
     public BuildSearchBar(JTable tabela) {
-        this.tabela = tabela;
+    	this.tabela = tabela;
     }
-    
-    public void listTypes() throws SQLException {
+
+	public void listTypes() throws SQLException {
         typesDAO tDao = new typesDAO();
         List<String> tipos = tDao.listTypes(); 
         comboBoxType.removeAllItems(); 
@@ -90,7 +90,58 @@ public class BuildSearchBar {
         buttonClearFilter = buildMethod.createButton("", 3, 4, SwingConstants.CENTER, colorTextBlack, colorBackgroundWhite);
         buttonClearFilter.setIcon(iconClearFilter);
         
-        inicialiteFunctions();
+        listTypes();
+        listBrands(); 
+        comboBoxType.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String selectedTipo = (String) comboBoxType.getSelectedItem();
+                
+                if (selectedTipo != null && !selectedTipo.isEmpty()) {
+                    try {
+						listBrandsForTypes(selectedTipo);
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+                } else {
+                    try {
+						listBrands();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+                }
+
+                applyFilters();
+                
+            }
+        });
+        
+        comboBoxBrand.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                applyFilters();
+            }
+        });
+        
+        textFieldSearch.addKeyListener(new KeyAdapter() {
+            public void keyReleased(KeyEvent evt) {
+                applyFilters();
+            }
+        });
+
+        buttonClearFilter.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					listBrands();
+					listTypes();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				
+				comboBoxType.setSelectedItem("");
+				comboBoxBrand.setSelectedItem("");
+				textFieldSearch.setText("");
+				applyFilters();
+			}
+		});
 
         searchPanelComponents = buildMethod.createPanel(100, 5, new FlowLayout(FlowLayout.LEFT), colorBackgroundWhite, 0,0,0,0);
         searchPanelComponents.add(textFieldSearch);
@@ -128,61 +179,4 @@ public class BuildSearchBar {
         }
     }
 
-    private void inicialiteFunctions() throws SQLException {
-        listTypes();
-        listBrands(); 
-        comboBoxType.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String selectedTipo = (String) comboBoxType.getSelectedItem();
-                
-                if (selectedTipo != null && !selectedTipo.isEmpty()) {
-                    try {
-						listBrandsForTypes(selectedTipo);
-					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-                } else {
-                    try {
-						listBrands();
-					} catch (SQLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-                }
-
-                applyFilters();
-                
-            }
-        });
-        
-        comboBoxBrand.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                applyFilters();
-            }
-        });
-        
-        textFieldSearch.addKeyListener(new KeyAdapter() {
-            public void keyReleased(KeyEvent evt) {
-                applyFilters();
-            }
-        });
-
-        buttonClearFilter.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					listBrands();
-					listTypes();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-				
-				comboBoxType.setSelectedItem("");
-				comboBoxBrand.setSelectedItem("");
-				textFieldSearch.setText("");
-				applyFilters();
-			}
-		});
-        
-    }
 }

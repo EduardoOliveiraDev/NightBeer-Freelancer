@@ -29,7 +29,8 @@ public class purchasesHistoricDAO {
     }
 
     public void saveHistotic(Map<Integer, Map<String, Object>> tableData, double totalPreco) throws SQLException {
-    	PreparedStatement stmt = connection.prepareStatement("INSERT INTO historico_de_compras (hashmap, total) VALUES (?, ?)");
+    	PreparedStatement stmt = connection.prepareStatement
+    			("INSERT INTO historico_de_compras (hashmap, total) VALUES (?, ?)");
     	
         try {
         	String hashString = convertHashMapToString(tableData);
@@ -77,9 +78,10 @@ public class purchasesHistoricDAO {
     
     public List<historic> listHistoric() throws SQLException {
         List<historic> listHistoric = new ArrayList<>();
-        PreparedStatement stmt = connection.prepareStatement("SELECT * FROM historico_de_compras");
+        PreparedStatement stmt = connection.prepareStatement
+        		("SELECT * FROM historico_de_compras"); 
+        
         ResultSet rs = stmt.executeQuery();
-
         try {
             while (rs.next()) {
                 historic obj = new historic();
@@ -96,7 +98,10 @@ public class purchasesHistoricDAO {
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, "Erro ao criar a lista" + e);
-        }
+        } finally {
+			rs.close();
+			stmt.close();
+		}
 
         return listHistoric;
     }

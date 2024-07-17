@@ -62,7 +62,7 @@ public class BuildMAdmin {
     private JButton buttonGoBack;
     private JButton buttonAddingEstoque;
     
-    public void listItems() {
+    public void listItems() throws SQLException {
         itemsDAO dao = new itemsDAO();
         List<items> lista = dao.listar();
         dadosItems.setNumRows(0);
@@ -106,8 +106,9 @@ public class BuildMAdmin {
     
     public JPanel containerCenter() throws SQLException {
         JPanel containerCenter = buildMethod.createPanel(65, 100, new BorderLayout(), colorBackgroundWhite, 0,0,25,25);
+        containerTable();
         containerCenter.add(new BuildSearchBar(tabelaItems).containerSearchMain(), BorderLayout.NORTH);
-        containerCenter.add(containerTable(), BorderLayout.CENTER);
+        containerCenter.add(containerTableItems, BorderLayout.CENTER);
 
         return containerCenter;
     }
@@ -201,7 +202,9 @@ public class BuildMAdmin {
 
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, insira um número válido para a quantidade.");
-                }
+                } catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             }
         });
 
@@ -294,7 +297,6 @@ public class BuildMAdmin {
         return containerInfoItems;
     }
     
-    
     private JPanel containerButtons() {
     	containerButtons = buildMethod.createPanel(31.5, 7, new FlowLayout(), colorBackgroundWhite, 0,0,0,0);
 
@@ -351,11 +353,14 @@ public class BuildMAdmin {
 	        		
 	        		if (response == JOptionPane.YES_OPTION) {
 	        			itemsDAO dao = new itemsDAO();
-	        			dao.deleteItem(codigo);
+	        			try {
+							dao.deleteItem(codigo);
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
 	                    try {
 							reload();
 						} catch (SQLException e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 	        			JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Produto apagado");
@@ -373,47 +378,52 @@ public class BuildMAdmin {
 		});
         buttonSave.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try {
-                    String codigoText = labelInfoItemCodigo.getText().trim();
-                    String produto = textFieldInfoItemProduto.getText().trim();
-                    String tipo = (String) comboBoxInfoItemTipo.getSelectedItem();
-                    String marca = (String) comboBoxInfoItemMarca.getSelectedItem();
-                    String estoqueText = textFieldInfoItemEstoque.getText().trim();
-                    String precoText = textFieldInfoItemPreco.getText().trim().replace("R$", "").trim();
-                    precoText = precoText.replace(",", ".");
+            	while (true) {
+            	    try {
+            	        String codigoText = labelInfoItemCodigo.getText().trim();
+            	        String produto = textFieldInfoItemProduto.getText().trim();
+            	        String tipo = (String) comboBoxInfoItemTipo.getSelectedItem();
+            	        String marca = (String) comboBoxInfoItemMarca.getSelectedItem();
+            	        String estoqueText = textFieldInfoItemEstoque.getText().trim();
+            	        String precoText = textFieldInfoItemPreco.getText().trim().replace("R$", "").trim();
+            	        precoText = precoText.replace(",", ".");
 
-                    if (produto.isEmpty() || tipo == null || tipo.isEmpty() || marca == null || marca.isEmpty() || estoqueText.isEmpty() || precoText.isEmpty()) {
-                        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos.");
-                        return;
-                    }
+            	        if (produto.isEmpty() || tipo == null || tipo.isEmpty() || marca == null || marca.isEmpty() || estoqueText.isEmpty() || precoText.isEmpty()) {
+            	            JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos.");
+            	            return;
+            	        }
 
-                    int estoque = Integer.parseInt(estoqueText);
-                    double preco = Double.parseDouble(precoText);
+            	        int estoque = Integer.parseInt(estoqueText);
+            	        double preco = Double.parseDouble(precoText);
 
-                    itemsDAO dao = new itemsDAO();
-                    items item = new items();
-                    item.setProduto(produto);
-                    item.setTipo(tipo);
-                    item.setMarca(marca);
-                    item.setEstoque(estoque);
-                    item.setPreco(preco);
+            	        itemsDAO dao = new itemsDAO();
+            	        items item = new items();
+            	        item.setProduto(produto);
+            	        item.setTipo(tipo);
+            	        item.setMarca(marca);
+            	        item.setEstoque(estoque);
+            	        item.setPreco(preco);
 
-                    if (codigoText == null || codigoText.isEmpty()) { // create
-                        dao.saveItems(item);
-                        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Item criado com sucesso!");
-                    } else { // edit
-                        int codigo = Integer.parseInt(codigoText);
-                        item.setCodigo(codigo);
-                        dao.editItems(item);
-                        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Item atualizado com sucesso!");
-                    }
+            	        if (codigoText == null || codigoText.isEmpty()) { // create
+            	            dao.saveItems(item);
+            	            JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Item criado com sucesso!");
+            	            reload();
+            	        } else { // edit
+            	            int codigo = Integer.parseInt(codigoText);
+            	            item.setCodigo(codigo);
+            	            dao.editItems(item);
+            	            JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Item atualizado com sucesso!");
+            	            reload();
+            	        }
+            	        break;
 
-                    reload();
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos corretamente.");
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Erro ao salvar item: " + ex.getMessage());
-                }
+            	    } catch (NumberFormatException ex) {
+            	        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos corretamente.");
+            	    } catch (Exception ex) {
+            	        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Erro ao salvar item: " + ex.getMessage());
+            	    }
+            	}
+
             }
         });
         buttonEdit.addActionListener(new ActionListener() {

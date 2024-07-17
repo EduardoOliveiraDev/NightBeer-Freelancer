@@ -2,17 +2,14 @@ package com.nightbeer.view;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 
 import com.nightbeer.build.BuildCreateTipoMarca;
-import com.nightbeer.build.BuildMethods;
 
+@SuppressWarnings("serial")
 public class mCreateTipoMarca extends JFrame {
 	private JPanel contentPane = new JPanel(new BorderLayout());
 	private static mAdmin instance;

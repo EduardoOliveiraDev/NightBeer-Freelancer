@@ -33,34 +33,53 @@ public class mPrincipal extends JFrame{
         
         addWindowListener(new WindowAdapter() {
             public void windowActivated(WindowEvent evt) {
-                buildMPrincipal.listItems();
+                try {
+					buildMPrincipal.listItems();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
             }
         });
 
         addWindowListener(new WindowAdapter() {
             public void windowActivated(WindowEvent evt) {
-                buildMPrincipal.listItems();
+                try {
+					buildMPrincipal.listItems();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
             }
 
             public void windowClosing(WindowEvent e) {
-                buildMPrincipal.returnItemsToStock();
+                try {
+					buildMPrincipal.returnItemsToStock();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
             }
         });
 
         navBar.addCloseButtonListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                buildMPrincipal.returnItemsToStock();
+                try {
+					buildMPrincipal.returnItemsToStock();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
                 dispose(); // Optionally close the application
             }
         });
         
         navBar.addAcessButtonListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				buildMPrincipal.returnItemsToStock();
+				try {
+					buildMPrincipal.returnItemsToStock();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 				try {
 					navBar.replaceFunctionButton();
 				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -70,16 +89,11 @@ public class mPrincipal extends JFrame{
 	}
 	
 	public void BuildingViewMPrincipal() throws SQLException {    
-		// NavBar
 		navBar.panelLogoAndTitle("  NightBeer Lounge");
 		navBar.panelButtons(navBar.iconUser);
 		navBar.getFrame(this);
 	    contentPane.add(navBar.containerNavBar(), BorderLayout.NORTH);
-	    
-	    // Container Center
 	    contentPane.add(buildMPrincipal.containerCenter(), BorderLayout.CENTER);
-	    
-	    // Container East
 	    contentPane.add(buildMPrincipal.containerTableBuyAndRequest(), BorderLayout.EAST);
 	}
 	

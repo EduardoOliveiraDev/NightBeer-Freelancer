@@ -19,7 +19,6 @@ public class mAdmin extends JFrame{
 	private static mAdmin instance;
    
 	public mAdmin() throws SQLException {
-		
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setTitle("NightBeer Config");
         setResizable(false);
@@ -33,7 +32,11 @@ public class mAdmin extends JFrame{
           
         addWindowListener(new WindowAdapter() {
             public void windowActivated(WindowEvent evt) {
-                buildMAdmin.listItems();
+                try {
+					buildMAdmin.listItems();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
             }
             
         });
@@ -49,7 +52,6 @@ public class mAdmin extends JFrame{
 				try {
 					navBar.replaceFunctionButton();
 				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -61,11 +63,7 @@ public class mAdmin extends JFrame{
 		navBar.panelButtons(navBar.iconBack);
 		navBar.getFrame(this);
 	    contentPane.add(navBar.containerNavBar(), BorderLayout.NORTH);
-	    
-	    // Adding container center in mAdmin
 	    contentPane.add(buildMAdmin.containerCenter(), BorderLayout.CENTER);
-	    
-	   // Adding container east in mAdmin
 	    contentPane.add(buildMAdmin.containerEast(), BorderLayout.EAST);
 	}
 	

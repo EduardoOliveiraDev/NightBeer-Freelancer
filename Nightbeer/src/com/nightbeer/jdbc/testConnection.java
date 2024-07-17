@@ -18,7 +18,7 @@ public class testConnection {
             Principal.setVisible(true);
             
         } catch (HeadlessException erro) {
-            JOptionPane.showMessageDialog(null, "connection error"+ erro.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro ao conectar-se ao banco de dados");
         }
     }
     

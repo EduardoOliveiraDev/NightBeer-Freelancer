@@ -20,7 +20,8 @@ public class typesDAO {
     }
  	 
     public void saveTypes(String newType) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("INSERT INTO tipo (tipo) VALUES(?)");
+        PreparedStatement stmt = connection.prepareStatement
+        		("INSERT INTO tipo (tipo) VALUES(?)");
 
     	try {
             stmt.setString(1, newType);
@@ -35,9 +36,14 @@ public class typesDAO {
     }
     
     public void editType(String oldTipo, String newTipo) throws SQLException {
-        PreparedStatement stmtTipo = connection.prepareStatement("UPDATE tipo SET tipo = ? WHERE tipo = ?");
-        PreparedStatement stmtMarca = connection.prepareStatement("UPDATE marca SET marca_tipo = ? WHERE marca_tipo = ?");
-        PreparedStatement stmtItem = connection.prepareStatement("UPDATE items SET tipo = ? WHERE tipo = ?");
+        PreparedStatement stmtTipo = connection.prepareStatement
+        		("UPDATE tipo SET tipo = ? WHERE tipo = ?");
+        
+        PreparedStatement stmtMarca = connection.prepareStatement
+        		("UPDATE marca SET marca_tipo = ? WHERE marca_tipo = ?");
+        
+        PreparedStatement stmtItem = connection.prepareStatement
+        		("UPDATE items SET tipo = ? WHERE tipo = ?");
     	
         try {
             stmtTipo.setString(1, newTipo);
@@ -64,8 +70,11 @@ public class typesDAO {
     }
 
     public void deleteType(String tipo) throws SQLException {
-    	PreparedStatement stmtCountItems = connection.prepareStatement("SELECT COUNT(*) AS total FROM items WHERE tipo = ?");
-    	PreparedStatement stmtDeleteTipo = connection.prepareStatement("DELETE FROM tipo WHERE tipo = ?");
+    	PreparedStatement stmtCountItems = connection.prepareStatement
+    			("SELECT COUNT(*) AS total FROM items WHERE tipo = ?");
+    	
+    	PreparedStatement stmtDeleteTipo = connection.prepareStatement
+    			("DELETE FROM tipo WHERE tipo = ?");
 
     	try {
     	    stmtCountItems.setString(1, tipo);
@@ -90,26 +99,18 @@ public class typesDAO {
     	    }
     	    
     	} catch (SQLException e) {
-    	    JOptionPane.showMessageDialog(null, "Erro ao deletar tipo: " + e.getMessage());
+    	    JOptionPane.showMessageDialog(null, "Erro ao deletar tipo");
     	    e.printStackTrace();
     	} finally {
-    	    try {
-    	        if (stmtCountItems != null) {
     	            stmtCountItems.close();
-    	        }
-    	        if (stmtDeleteTipo != null) {
     	            stmtDeleteTipo.close();
-    	        }
-    	    } catch (SQLException e) {
-    	        e.printStackTrace();
-    	    }
     	}
-
     }
   
     public List<String> listTypes() throws SQLException {
         List<String> tipos = new ArrayList<>();
-        PreparedStatement stmt = connection.prepareStatement("SELECT DISTINCT tipo FROM tipo");
+        PreparedStatement stmt = connection.prepareStatement
+        		("SELECT DISTINCT tipo FROM tipo");
         
         try {
         	ResultSet rs = stmt.executeQuery();

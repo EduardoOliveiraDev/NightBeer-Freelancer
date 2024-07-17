@@ -142,24 +142,26 @@ public class BuildCreateTipoMarca {
 		buttonTypeEdit = buildMethod.createButton("Editar", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
 
 		comboBoxTypes.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String selectedTipo = (String) comboBoxTypes.getSelectedItem();
-                textfieldType.setText(selectedTipo);
-                if (selectedTipo != null && !selectedTipo.isEmpty()) {
-                    try {
-						listBrandsForTypes(selectedTipo);
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-                } else {
-                    try {
-						listBrands();
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-                } 
-            }
-        });
+		    public void actionPerformed(ActionEvent e) {
+		        String selectedTipo = (String) comboBoxTypes.getSelectedItem();
+		        if (selectedTipo != null && !selectedTipo.isEmpty()) {
+		            textfieldType.setText(selectedTipo);
+		            try {
+		                listBrandsForTypes(selectedTipo);
+		            } catch (SQLException e1) {
+		                e1.printStackTrace();
+		            }
+		        } else {
+		            textfieldType.setText(""); // Limpa o texto se selectedTipo for null ou vazio
+		            try {
+		                listBrands(); // Carrega marcas de maneira padrão
+		            } catch (SQLException e1) {
+		                e1.printStackTrace();
+		            }
+		        } 
+		    }
+		});
+
 		
 		startFunctionsTypesButtons();
 		containerButtonsTypes.add(buttonTypeNew);
@@ -196,11 +198,16 @@ public class BuildCreateTipoMarca {
 		buttonBrandEdit = buildMethod.createButton("Editar", 3, 3, SwingConstants.CENTER, colorButtonClose, colorBlackBackground);
 
 		comboBoxBrand.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-                String selectedMarca = (String) comboBoxBrand.getSelectedItem();
-                textfieldBrand.setText(selectedMarca);
-			}
+		    public void actionPerformed(ActionEvent e) {
+		        String selectedMarca = (String) comboBoxBrand.getSelectedItem();
+		        if (selectedMarca != null) {
+		            textfieldBrand.setText(selectedMarca);
+		        }
+		    }
 		});
+
+
+
 
 		startFunctionsBrandButtons();
 		containerButtonsBrands.add(buttonBrandNew);
