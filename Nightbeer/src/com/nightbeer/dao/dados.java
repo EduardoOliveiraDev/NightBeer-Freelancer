@@ -10,5 +10,13 @@ public class dados {
         }
     }
     
+    public boolean validBuy(String password){
+        if (password.equals("12345")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     
 }

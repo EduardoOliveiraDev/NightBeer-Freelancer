@@ -206,9 +206,6 @@ public class BuildCreateTipoMarca {
 		    }
 		});
 
-
-
-
 		startFunctionsBrandButtons();
 		containerButtonsBrands.add(buttonBrandNew);
 		containerButtonsBrands.add(buttonBrandDel);

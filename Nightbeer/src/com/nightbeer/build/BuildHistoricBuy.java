@@ -162,7 +162,7 @@ public class BuildHistoricBuy {
 	public JPanel containerTableHistoric() {
         containerTableHistoric = buildMethods.createPanel(60, 59, new BorderLayout(), colorBackgroundWhite, 15, 30, 30, 30);
 
-        String[] columnBuy = {"id", "data", "hashmap", "total"};
+        String[] columnBuy = {"codigo", "data", "carrinho", "total"};
         historicDados = new DefaultTableModel(columnBuy, 0) {
             public boolean isCellEditable(int row, int column) {
                 return false;

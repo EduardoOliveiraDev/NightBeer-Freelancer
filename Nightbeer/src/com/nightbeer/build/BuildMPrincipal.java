@@ -7,13 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.*;
 import javax.swing.text.AbstractDocument;
 
+import com.nightbeer.dao.dados;
 import com.nightbeer.dao.itemsDAO;
 import com.nightbeer.dao.purchasesHistoricDAO;
 import com.nightbeer.model.items;
@@ -137,7 +136,6 @@ public class BuildMPrincipal {
         return containerCenter;
     }
 
-	@SuppressWarnings("serial")
 	public JPanel containerTableItems() {
         containerTableItems = buildMethod.createPanel(100, 64, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
 
@@ -179,10 +177,9 @@ public class BuildMPrincipal {
                         labelInfoItemMarca.setText(Marca.toString());
                         labelInfoItemEstoque.setText(Estoque.toString());
                         labelInfoItemPreco.setText("R$ " + Preco.toString());
-                        
                         SpinnerInfoItemQuantidade.setValue(1);
+                        
                         SpinnerNumberModel numberQuantidade = (SpinnerNumberModel) SpinnerInfoItemQuantidade.getModel();
-                        numberQuantidade.setMaximum(Integer.parseInt(Estoque.toString()));
                         numberQuantidade.setMinimum(1);
                     }
                 }
@@ -222,28 +219,6 @@ public class BuildMPrincipal {
         
         SpinnerInfoItemQuantidade = buildMethod.createSpinner(8, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall);
         SpinnerInfoItemQuantidade.setValue(1);
-        SpinnerInfoItemQuantidade.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                int selectedRow = tabelaItems.getSelectedRow();
-                if (selectedRow != -1) { 
-                    String estoqueStr = labelInfoItemEstoque.getText();
-                    
-                    if (!estoqueStr.isEmpty()) {
-                        int estoque = Integer.parseInt(estoqueStr); 
-                        int novoValor = (int) SpinnerInfoItemQuantidade.getValue();
-                        
-                        if (novoValor > estoque) {
-                            JOptionPane.showMessageDialog(mPrincipal.getInstance().getFrame(), "Quantidade não pode ser maior que o estoque!");
-                            SpinnerInfoItemQuantidade.setValue(previosValue);
-                        } else {
-                            previosValue = novoValor;
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(mPrincipal.getInstance().getFrame(), "Erro ao obter valor do estoque!");
-                    }
-                }
-            }
-        });
         
         containerInfoItems.add(labelTextCodigo);
         containerInfoItems.add(textFieldInfoItemCodigo);
@@ -267,7 +242,7 @@ public class BuildMPrincipal {
         buttonAddingItemForTableBuy.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	try {
-					addItemToCart();
+					testEstoque();
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
@@ -308,7 +283,6 @@ public class BuildMPrincipal {
         return containerTableBuyAndRequest;
     }
     
-    @SuppressWarnings("serial")
 	public JPanel containerTableBuy() {
         containerTableBuy = buildMethod.createPanel(32, 63.5, new BorderLayout(), colorBackgroundWhite, 11,0,0,0);
         containerTableBuy.setBackground(colorBlackBackground);
@@ -359,9 +333,6 @@ public class BuildMPrincipal {
                         labelInfoItemPreco.setText(Preco.toString());
                         SpinnerInfoItemQuantidade.setValue(Integer.parseInt(Quantidade.toString()));
                         
-                        SpinnerNumberModel numberQuantidade = (SpinnerNumberModel) SpinnerInfoItemQuantidade.getModel();
-                        numberQuantidade.setMaximum(Integer.parseInt(Estoque.toString()));
-                        numberQuantidade.setMinimum(1);
                     }
                 }
             }
@@ -460,27 +431,37 @@ public class BuildMPrincipal {
         }
     }
     
-    private void addItemToCart() throws SQLException {
+    private void addItemToCart(int quantidade) throws SQLException {
         int selectedRow = tabelaItems.getSelectedRow();
         if (selectedRow != -1) {
             Object codigo = tabelaItems.getValueAt(selectedRow, 0);
             Object produto = tabelaItems.getValueAt(selectedRow, 1);
             Object tipo = tabelaItems.getValueAt(selectedRow, 2);
             Object marca = tabelaItems.getValueAt(selectedRow, 3);
-            Object estoque = tabelaItems.getValueAt(selectedRow, 4);
-            Object preco = tabelaItems.getValueAt(selectedRow, 5);
+            int estoque = (int) tabelaItems.getValueAt(selectedRow, 4);
+            double preco = (double) tabelaItems.getValueAt(selectedRow, 5);
 
-            int quantidade = (int) SpinnerInfoItemQuantidade.getValue();
+            double precoTotal = quantidade * preco;
 
-            double precoTotal = quantidade * (double) preco;
+            boolean itemExistente = false;
+            for (int i = 0; i < dadosBuy.getRowCount(); i++) {
+                if (dadosBuy.getValueAt(i, 0).equals(codigo)) {
+                    int quantidadeAtual = (int) dadosBuy.getValueAt(i, 6);
+                    dadosBuy.setValueAt(quantidadeAtual + quantidade, i, 6);
+                    dadosBuy.setValueAt((quantidadeAtual + quantidade) * preco, i, 7);
+                    itemExistente = true;
+                    break;
+                }
+            }
 
-            dadosBuy.addRow(new Object[]{codigo, produto, tipo, marca, estoque, preco, quantidade, precoTotal});
+            if (!itemExistente) {
+                dadosBuy.addRow(new Object[]{codigo, produto, tipo, marca, estoque - quantidade, preco, quantidade, precoTotal});
+            }
 
-            int novoEstoque = (int) estoque - quantidade;
+            int novoEstoque = estoque - quantidade;
             itemsDAO itemsDAO = new itemsDAO();
-			itemsDAO.updateEstoque((int) codigo, novoEstoque);
-
-            tabelaItems.getModel().setValueAt(novoEstoque, selectedRow, 4);
+            itemsDAO.updateEstoque((int) codigo, novoEstoque);
+            tabelaItems.setValueAt(novoEstoque, selectedRow, 4);
 
             refreshTotalPrice();
             resetReturnItemsTimer();
@@ -488,14 +469,21 @@ public class BuildMPrincipal {
             JOptionPane.showMessageDialog(mPrincipal.getInstance().getFrame(), "Produto não selecionado!");
         }
     }
-   
+
     private void removeItemFromCart() throws SQLException {
         int selectedRowBuy = tabelaBuy.getSelectedRow();
         if (selectedRowBuy != -1) {
             int codigo = (int) dadosBuy.getValueAt(selectedRowBuy, 0);
-            int estoqueAtual = (int) tabelaItems.getValueAt(selectedRowBuy, 4);
             int quantidade = (int) dadosBuy.getValueAt(selectedRowBuy, 6); 
             
+            int estoqueAtual = 0;
+            for (int i = 0; i < tabelaItems.getRowCount(); i++) {
+                if ((int) tabelaItems.getValueAt(i, 0) == codigo) {
+                    estoqueAtual = (int) tabelaItems.getValueAt(i, 4);
+                    break;
+                }
+            }
+
             dadosBuy.removeRow(selectedRowBuy);
 
             itemsDAO itemsDAO = new itemsDAO();
@@ -523,6 +511,8 @@ public class BuildMPrincipal {
         labelInfoItemMarca.setText("");
         labelInfoItemEstoque.setText("");
         labelInfoItemPreco.setText("");
+        tabelaItems.clearSelection();
+        tabelaBuy.clearSelection();
     }
     
     private void clearItems() {
@@ -535,6 +525,46 @@ public class BuildMPrincipal {
         tabelaItems.clearSelection();
     }
 
+    private void testEstoque() throws SQLException {
+        int selectedRow = tabelaItems.getSelectedRow();
+        
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, "Selecione um item", "", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        String estoqueString = labelInfoItemEstoque.getText();
+        if (estoqueString.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Selecione um item", "", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int estoque = Integer.parseInt(estoqueString);
+        int novoValor = (int) SpinnerInfoItemQuantidade.getValue();
+        
+        if (novoValor > estoque) {
+            String passwordString = JOptionPane.showInputDialog("Senha");
+            tabelaItems.setRowSelectionInterval(selectedRow, selectedRow);
+            
+            dados msDados = new dados();
+            
+            if (msDados.validBuy(passwordString)) {
+                addItemToCart(novoValor);
+                clearItemInfoLabels();
+            } else {
+                clearItemInfoLabels();
+            }
+        } else {
+            addItemToCart(novoValor);
+            clearItemInfoLabels();
+        }
+        
+        tabelaItems.setRowSelectionInterval(selectedRow, selectedRow);
+    }
+
+
+
+    
     private void confirmBuy() {
         int response = JOptionPane.showConfirmDialog(frame, "Você deseja confirmar a compra?", "Confirmar compra", JOptionPane.YES_OPTION);
         if (response == JOptionPane.YES_OPTION) {
