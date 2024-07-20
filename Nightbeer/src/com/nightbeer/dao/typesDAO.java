@@ -70,56 +70,73 @@ public class typesDAO {
     }
 
     public void deleteType(String tipo) throws SQLException {
-    	PreparedStatement stmtCountItems = connection.prepareStatement
-    			("SELECT COUNT(*) AS total FROM items WHERE tipo = ?");
-    	
-    	PreparedStatement stmtDeleteTipo = connection.prepareStatement
-    			("DELETE FROM tipo WHERE tipo = ?");
+        PreparedStatement stmtCountItems = connection.prepareStatement(
+                "SELECT COUNT(*) AS total FROM items WHERE tipo = ?");
 
-    	try {
-    	    stmtCountItems.setString(1, tipo);
-    	    ResultSet rs = stmtCountItems.executeQuery();
-    	    
-    	    int totalItems = 0;
-    	    if (rs.next()) {
-    	        totalItems = rs.getInt("total");
-    	    }
-    	    
-    	    if (totalItems > 0) {
-    	        JOptionPane.showMessageDialog(null, "Não é possível deletar o tipo. Existem " + totalItems + " itens associados a este tipo.");
-    	    } else {
-    	        stmtDeleteTipo.setString(1, tipo);
-    	        int rowsAffected = stmtDeleteTipo.executeUpdate(); 
-    	        
-    	        if (rowsAffected > 0) {
-    	            JOptionPane.showMessageDialog(null, "Tipo deletado com sucesso");
-    	        } else {
-    	            JOptionPane.showMessageDialog(null, "Nenhum tipo encontrado para deletar");
-    	        }
-    	    }
-    	    
-    	} catch (SQLException e) {
-    	    JOptionPane.showMessageDialog(null, "Erro ao deletar tipo");
-    	    e.printStackTrace();
-    	} finally {
-    	            stmtCountItems.close();
-    	            stmtDeleteTipo.close();
-    	}
+        PreparedStatement stmtCountBrands = connection.prepareStatement(
+                "SELECT COUNT(*) AS total FROM marca WHERE marca_tipo = ?");
+
+        PreparedStatement stmtDeleteTipo = connection.prepareStatement(
+                "DELETE FROM tipo WHERE tipo = ?");
+
+        try {
+            stmtCountItems.setString(1, tipo);
+            ResultSet rsItems = stmtCountItems.executeQuery();
+
+            int totalItems = 0;
+            if (rsItems.next()) {
+                totalItems = rsItems.getInt("total");
+            }
+
+            stmtCountBrands.setString(1, tipo);
+            ResultSet rsBrands = stmtCountBrands.executeQuery();
+
+            int totalBrands = 0;
+            if (rsBrands.next()) {
+                totalBrands = rsBrands.getInt("total");
+            }
+
+            if (totalItems > 0) {
+                JOptionPane.showMessageDialog(null, "Não é possível deletar o tipo. Existem " + totalItems + " itens associados a este tipo.");
+            } else if (totalBrands > 0) {
+                JOptionPane.showMessageDialog(null, "Não é possível deletar o tipo. Existem " + totalBrands + " marcas associadas a este tipo.");
+            } else {
+                stmtDeleteTipo.setString(1, tipo);
+                int rowsAffected = stmtDeleteTipo.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(null, "Tipo deletado com sucesso");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Nenhum tipo encontrado para deletar");
+                }
+            }
+
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, "Erro ao deletar tipo");
+            e.printStackTrace();
+        } finally {
+            stmtCountItems.close();
+            stmtCountBrands.close();
+            stmtDeleteTipo.close();
+        }
     }
   
     public List<String> listTypes() throws SQLException {
         List<String> tipos = new ArrayList<>();
-        PreparedStatement stmt = connection.prepareStatement
-        		("SELECT DISTINCT tipo FROM tipo");
+        PreparedStatement stmt = connection.prepareStatement(
+                "SELECT DISTINCT tipo FROM tipo ORDER BY tipo ASC");
         
         try {
-        	ResultSet rs = stmt.executeQuery();
-        	while (rs.next()) {
-        		tipos.add(rs.getString("tipo"));
-        	}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                tipos.add(rs.getString("tipo"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            stmt.close(); // Fechar o statement no bloco finally para garantir que seja sempre fechado
+        }
+        
         return tipos;
     }
 	

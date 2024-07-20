@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -78,7 +81,7 @@ public class BuildSearchBar {
         marcas.forEach(marca -> comboBoxBrand.addItem(marca)); 
     }
     
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public JPanel containerSearchMain() throws SQLException {
         containerSearch = buildMethod.createPanel(100, 7, null, colorBackgroundWhite, 0,0,0,0);
         containerSearch.setLayout(new BoxLayout(containerSearch, BoxLayout.Y_AXIS));
@@ -88,6 +91,8 @@ public class BuildSearchBar {
         comboBoxType = (JComboBox<String>) buildMethod.createComboBox("", 10, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 0, 0, 0);
         comboBoxBrand = (JComboBox<String>) buildMethod.createComboBox("", 10, 4, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 0, 0, 0);
         buttonClearFilter = buildMethod.createButton("", 3, 4, SwingConstants.CENTER, colorTextBlack, colorBackgroundWhite);
+        comboBoxType.setMaximumRowCount(8); 
+        comboBoxBrand.setMaximumRowCount(8); 
         buttonClearFilter.setIcon(iconClearFilter);
         
         listTypes();
@@ -117,7 +122,33 @@ public class BuildSearchBar {
         
         comboBoxBrand.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+            	try {
+					listBrands();
+				} catch (SQLException e1) {
+				}
                 applyFilters();
+            }
+        });
+        
+        comboBoxType.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                String selectedTipo = (String) comboBoxType.getSelectedItem();
+                if (selectedTipo != null && !selectedTipo.isEmpty()) {
+                    updateLists();
+                    comboBoxType.setSelectedItem(selectedTipo);
+                }
+            }
+        });
+
+        comboBoxBrand.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                String selectedMarca = (String) comboBoxBrand.getSelectedItem();
+                String selectedTipo = (String) comboBoxType.getSelectedItem();
+                
+                comboBoxType.setSelectedItem("");
+                updateLists();
+                comboBoxType.setSelectedItem(selectedTipo);
+                comboBoxBrand.setSelectedItem(selectedMarca);
             }
         });
         
@@ -128,20 +159,20 @@ public class BuildSearchBar {
         });
 
         buttonClearFilter.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					listBrands();
-					listTypes();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-				
-				comboBoxType.setSelectedItem("");
-				comboBoxBrand.setSelectedItem("");
-				textFieldSearch.setText("");
-				applyFilters();
-			}
-		});
+ 			public void actionPerformed(ActionEvent e) {
+ 				try {
+ 					listBrands();
+ 					listTypes();
+ 				} catch (SQLException e1) {
+ 					e1.printStackTrace();
+ 				}
+ 				
+ 				comboBoxType.setSelectedItem("");
+ 				comboBoxBrand.setSelectedItem("");
+ 				textFieldSearch.setText("");
+ 				applyFilters();
+ 			}
+ 		});
 
         searchPanelComponents = buildMethod.createPanel(100, 5, new FlowLayout(FlowLayout.LEFT), colorBackgroundWhite, 0,0,0,0);
         searchPanelComponents.add(textFieldSearch);
@@ -176,6 +207,21 @@ public class BuildSearchBar {
             }
 
             trs.setRowFilter(RowFilter.andFilter(filters));
+        }
+    }
+    
+    public void updateLists() {
+        try {
+            listTypes();
+            String selectedTipo = (String) comboBoxType.getSelectedItem();
+            if (selectedTipo != null && !selectedTipo.isEmpty()) {
+                listBrandsForTypes(selectedTipo);
+            } else {
+                listBrands();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar listas");
         }
     }
 

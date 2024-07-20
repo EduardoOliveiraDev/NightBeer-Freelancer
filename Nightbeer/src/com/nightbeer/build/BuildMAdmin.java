@@ -62,6 +62,7 @@ public class BuildMAdmin {
     private JButton buttonGoBack;
     private JButton buttonAddingEstoque;
     
+    // Listing...
     public void listItems() throws SQLException {
         itemsDAO dao = new itemsDAO();
         List<items> lista = dao.listar();
@@ -104,12 +105,12 @@ public class BuildMAdmin {
         marcas.forEach(marca -> comboBoxInfoItemMarca.addItem(marca)); 
     }
     
+    // Containers...
     public JPanel containerCenter() throws SQLException {
         JPanel containerCenter = buildMethod.createPanel(65, 100, new BorderLayout(), colorBackgroundWhite, 0,0,25,25);
         containerTable();
         containerCenter.add(new BuildSearchBar(tabelaItems).containerSearchMain(), BorderLayout.NORTH);
         containerCenter.add(containerTableItems, BorderLayout.CENTER);
-
         return containerCenter;
     }
 
@@ -163,17 +164,56 @@ public class BuildMAdmin {
         ((AbstractDocument) textFieldInfoItemEstoque.getDocument()).setDocumentFilter(new LimitDocumentFilter(11));
         
         buttonGoBack = buildMethod.createButton("<", 2.2, 2.5, SwingConstants.CENTER, colorBackgroundWhite, colorBlackBackground);
-        buttonGoBack.setVisible(false);
-        buttonGoBack.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				clearForm();
-				resetForm();
-			}
-		});
+        buttonGoBack.setOpaque(false);
         
         buttonAddingEstoque = buildMethod.createButton("+", 1.3, 2, SwingConstants.CENTER, colorTextBlack, colorWhiteClear);
         buttonAddingEstoque.setFont(FontRobotoPlainSmall);
-        buttonAddingEstoque.addActionListener(new ActionListener() {
+
+        textFieldInfoItemProduto.setEditable(false);
+        comboBoxInfoItemTipo.setEnabled(false);
+        comboBoxInfoItemMarca.setEnabled(false);
+        textFieldInfoItemEstoque.setEditable(false);
+        textFieldInfoItemPreco.setEditable(false);
+        
+        buttonType = buildMethod.createButton("+", 1.3, 2, SwingConstants.CENTER, colorTextBlack, colorWhiteClear);
+        buttonType.setFont(FontRobotoPlainSmall);
+        buttonBrand = buildMethod.createButton("+", 1.3, 2, SwingConstants.CENTER, colorTextBlack, colorWhiteClear);
+        buttonBrand.setFont(FontRobotoPlainSmall);
+
+        listBrands();
+        listTypes();
+        containerInfoItemsFunction();
+        
+        tabelaItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        containerInfoItems.add(buttonGoBack);
+        containerInfoItems.add(labelTextTitle);
+        containerInfoItems.add(labelTextCodigo);
+        containerInfoItems.add(labelTextEstoque);
+        containerInfoItems.add(buttonAddingEstoque);
+        containerInfoItems.add(labelTextPreco);
+        containerInfoItems.add(labelInfoItemCodigo);
+        containerInfoItems.add(textFieldInfoItemEstoque);
+        containerInfoItems.add(textFieldInfoItemPreco);
+        containerInfoItems.add(labelTextProduto);
+        containerInfoItems.add(textFieldInfoItemProduto);
+        containerInfoItems.add(labelTextTipo);
+        containerInfoItems.add(buttonType);
+        containerInfoItems.add(labelTextMarca);
+        containerInfoItems.add(buttonBrand);
+        containerInfoItems.add(comboBoxInfoItemTipo);
+        containerInfoItems.add(comboBoxInfoItemMarca);
+        return containerInfoItems;
+    }
+    public void containerInfoItemsFunction() {
+        buttonGoBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				resetForm();
+				clearForm();
+			}
+		});
+
+    	buttonAddingEstoque.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = tabelaItems.getSelectedRow();
                 if (selectedRow == -1) {
@@ -207,17 +247,7 @@ public class BuildMAdmin {
 				}
             }
         });
-
-        textFieldInfoItemProduto.setEditable(false);
-        comboBoxInfoItemTipo.setEnabled(false);
-        comboBoxInfoItemMarca.setEnabled(false);
-        textFieldInfoItemEstoque.setEditable(false);
-        textFieldInfoItemPreco.setEditable(false);
-        
-        buttonType = buildMethod.createButton("+", 1.3, 2, SwingConstants.CENTER, colorTextBlack, colorWhiteClear);
-        buttonType.setFont(FontRobotoPlainSmall);
-        buttonBrand = buildMethod.createButton("+", 1.3, 2, SwingConstants.CENTER, colorTextBlack, colorWhiteClear);
-        buttonBrand.setFont(FontRobotoPlainSmall);
+    	
         buttonType.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mCreateTipoMarca mCreateTipoMarca = null;
@@ -229,6 +259,7 @@ public class BuildMAdmin {
 				mCreateTipoMarca.setVisible(true);
 			}
 		});
+        
         buttonBrand.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				mCreateTipoMarca mCreateTipoMarca = null;
@@ -240,12 +271,7 @@ public class BuildMAdmin {
 				mCreateTipoMarca.setVisible(true);
 			}
 		});
-
-        listBrands();
-        listTypes();
-        
-        tabelaItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
+    	
         ListSelectionModel selectionModel = tabelaItems.getSelectionModel();
         selectionModel.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
@@ -260,41 +286,70 @@ public class BuildMAdmin {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     String selectedTipo = (String) comboBoxInfoItemTipo.getSelectedItem();
-                    if (selectedTipo != null && !selectedTipo.isEmpty()) {
-                        try {
+    
+                    if (selectedTipo == null || selectedTipo.isEmpty() || selectedTipo == "") {
+                    	try {
+							listBrands();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
+                    	return;
+					}
+                    
+                    if (selectedTipo != "") {
+						try {
 							listBrandsForTypes(selectedTipo);
 						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}
-                    } else {
-                        try {
-							listBrands();
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						} // Lista todas as marcas se nenhum tipo for selecionado
-                    }
+						
+						
+					}
+                    
                 }
             }
         });
 
-        containerInfoItems.add(buttonGoBack);
-        containerInfoItems.add(labelTextTitle);
-        containerInfoItems.add(labelTextCodigo);
-        containerInfoItems.add(labelTextEstoque);
-        containerInfoItems.add(buttonAddingEstoque);
-        containerInfoItems.add(labelTextPreco);
-        containerInfoItems.add(labelInfoItemCodigo);
-        containerInfoItems.add(textFieldInfoItemEstoque);
-        containerInfoItems.add(textFieldInfoItemPreco);
-        containerInfoItems.add(labelTextProduto);
-        containerInfoItems.add(textFieldInfoItemProduto);
-        containerInfoItems.add(labelTextTipo);
-        containerInfoItems.add(buttonType);
-        containerInfoItems.add(labelTextMarca);
-        containerInfoItems.add(buttonBrand);
-        containerInfoItems.add(comboBoxInfoItemTipo);
-        containerInfoItems.add(comboBoxInfoItemMarca);
-        return containerInfoItems;
+    	comboBoxInfoItemTipo.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+            	comboBoxInfoItemTipo.setMaximumRowCount(10);
+            	String selectedTipo = (String) comboBoxInfoItemTipo.getSelectedItem();
+            	try {
+					listTypes();
+				} catch (SQLException e1) {
+				}
+            	
+            	comboBoxInfoItemTipo.setSelectedItem(selectedTipo);
+            }
+        });
+
+        comboBoxInfoItemMarca.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+            	comboBoxInfoItemMarca.setMaximumRowCount(10);
+            	String selectedTipo = (String) comboBoxInfoItemTipo.getSelectedItem();
+            	String selectedMarca = (String) comboBoxInfoItemMarca.getSelectedItem();
+            	
+            	if (selectedTipo == "") {
+					try {
+						listBrands();
+					} catch (SQLException e1) {
+					}
+				}
+            	
+            	if (selectedTipo != "") {
+					try {
+						listBrandsForTypes(selectedTipo);
+					} catch (SQLException e1) {
+					}
+				}
+            	
+            	
+            	comboBoxInfoItemMarca.setSelectedItem(selectedMarca);
+                
+            	
+            }
+        });
+
     }
     
     private JPanel containerButtons() {
@@ -306,29 +361,24 @@ public class BuildMAdmin {
         buttonEdit = buildMethod.createButton("Editar", 6, 5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
         buttonSave.setEnabled(false);
         
+        containerButtonsFunction();
+        
+        containerButtons.add(buttonNew);
+        containerButtons.add(buttonDel);
+        containerButtons.add(buttonSave);
+        containerButtons.add(buttonEdit);
+        return containerButtons;
+    }
+    public void containerButtonsFunction() {
         buttonNew.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                labelInfoItemCodigo.setText("");
-                textFieldInfoItemProduto.setText("");
-                comboBoxInfoItemTipo.setSelectedItem("");
-                comboBoxInfoItemMarca.setSelectedItem("");
-                textFieldInfoItemEstoque.setText("");
-                textFieldInfoItemPreco.setText("");
-
-                textFieldInfoItemProduto.setEditable(true);
-                comboBoxInfoItemTipo.setEnabled(true);
-                comboBoxInfoItemMarca.setEnabled(true);
-                textFieldInfoItemEstoque.setEditable(true);
-                textFieldInfoItemPreco.setEditable(true);
-                buttonGoBack.setVisible(true);
-
-                buttonNew.setEnabled(false);
-                buttonDel.setEnabled(false);
-                buttonSave.setEnabled(true);
-                buttonEdit.setEnabled(false);
-
+            	tabelaItems.clearSelection();
+            	clearForm();
+                editingForm();
+                buttonGoBack.repaint();
             }
         });
+        
         buttonDel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String codigoString = labelInfoItemCodigo.getText();
@@ -370,92 +420,76 @@ public class BuildMAdmin {
 				} else { 
 					JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Selecione um item para deletar");
 				}
-					
-
-				
-				
 			}
 		});
+        
         buttonSave.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	while (true) {
-            	    try {
-            	        String codigoText = labelInfoItemCodigo.getText().trim();
-            	        String produto = textFieldInfoItemProduto.getText().trim();
-            	        String tipo = (String) comboBoxInfoItemTipo.getSelectedItem();
-            	        String marca = (String) comboBoxInfoItemMarca.getSelectedItem();
-            	        String estoqueText = textFieldInfoItemEstoque.getText().trim();
-            	        String precoText = textFieldInfoItemPreco.getText().trim().replace("R$", "").trim();
-            	        precoText = precoText.replace(",", ".");
+                // Coleta os dados dos campos
+                String codigoText = labelInfoItemCodigo.getText().trim();
+                String produto = textFieldInfoItemProduto.getText().trim();
+                String tipo = (String) comboBoxInfoItemTipo.getSelectedItem();
+                String marca = (String) comboBoxInfoItemMarca.getSelectedItem();
+                String estoqueText = textFieldInfoItemEstoque.getText().trim();
+                String precoText = textFieldInfoItemPreco.getText().trim().replace("R$", "").trim();
+                precoText = precoText.replace(",", ".");
 
-            	        if (produto.isEmpty() || tipo == null || tipo.isEmpty() || marca == null || marca.isEmpty() || estoqueText.isEmpty() || precoText.isEmpty()) {
-            	            JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos.");
-            	            return;
-            	        }
+                try {
+                    // Validação dos campos
+                    if (produto.isEmpty() || tipo == null || tipo.isEmpty() || marca == null || marca.isEmpty() || estoqueText.isEmpty() || precoText.isEmpty()) {
+                        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos.");
+                        return; // Interrompe a execução do método se houver campos vazios
+                    }
 
-            	        int estoque = Integer.parseInt(estoqueText);
-            	        double preco = Double.parseDouble(precoText);
+                    int estoque = Integer.parseInt(estoqueText);
+                    double preco = Double.parseDouble(precoText);
 
-            	        itemsDAO dao = new itemsDAO();
-            	        items item = new items();
-            	        item.setProduto(produto);
-            	        item.setTipo(tipo);
-            	        item.setMarca(marca);
-            	        item.setEstoque(estoque);
-            	        item.setPreco(preco);
+                    itemsDAO dao = new itemsDAO();
+                    items item = new items();
+                    item.setProduto(produto);
+                    item.setTipo(tipo);
+                    item.setMarca(marca);
+                    item.setEstoque(estoque);
+                    item.setPreco(preco);
 
-            	        if (codigoText == null || codigoText.isEmpty()) { // create
-            	            dao.saveItems(item);
-            	            JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Item criado com sucesso!");
-            	            reload();
-            	        } else { // edit
-            	            int codigo = Integer.parseInt(codigoText);
-            	            item.setCodigo(codigo);
-            	            dao.editItems(item);
-            	            JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Item atualizado com sucesso!");
-            	            reload();
-            	        }
-            	        break;
+                    // Salvamento ou edição do item
+                    if (codigoText == null || codigoText.isEmpty()) { // criar
+                        dao.saveItems(item);
+                        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Item criado com sucesso!");
+                    } else { // editar
+                        int codigo = Integer.parseInt(codigoText);
+                        item.setCodigo(codigo);
+                        dao.editItems(item);
+                        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Item atualizado com sucesso!");
+                    }
 
-            	    } catch (NumberFormatException ex) {
-            	        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos corretamente.");
-            	    } catch (Exception ex) {
-            	        JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Erro ao salvar item: " + ex.getMessage());
-            	    }
-            	}
-
+                    reload(); // Atualiza a tabela após salvar
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Por favor, preencha todos os campos corretamente.");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(mAdmin.getInstance().getFrame(), "Erro ao salvar item: " + ex.getMessage());
+                }
             }
         });
+        
         buttonEdit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-                textFieldInfoItemProduto.setEditable(true);
-                comboBoxInfoItemTipo.setEnabled(true);
-                comboBoxInfoItemMarca.setEnabled(true);
-                textFieldInfoItemEstoque.setEditable(true);
-                textFieldInfoItemPreco.setEditable(true);
-                buttonGoBack.setVisible(true);
-                
-                buttonNew.setEnabled(false);
-                buttonDel.setEnabled(false);
-                buttonSave.setEnabled(true);
-                buttonEdit.setEnabled(false);
+                String codigo = labelInfoItemCodigo.getText();
+				if (codigo == null || codigo.isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Selecione um item para poder Editar");
+					return;
+				}
+				
+				editingForm();
+                buttonGoBack.repaint();
 			}
 		});
         
-        containerButtons.add(buttonNew);
-        containerButtons.add(buttonDel);
-        containerButtons.add(buttonSave);
-        containerButtons.add(buttonEdit);
-        
-        return containerButtons;
     }
     
+    // Methods for using
     public void setTextItemsInTabela() {
-        textFieldInfoItemProduto.setEditable(false);
-        comboBoxInfoItemTipo.setEnabled(false);
-        comboBoxInfoItemMarca.setEnabled(false);
-        textFieldInfoItemEstoque.setEditable(false);
-        textFieldInfoItemPreco.setEditable(false);
+        resetForm();
         
         int selectedRow = tabelaItems.getSelectedRow();
         if (selectedRow != -1) {
@@ -496,14 +530,72 @@ public class BuildMAdmin {
         buttonDel.setEnabled(true);
         buttonSave.setEnabled(false);
         buttonEdit.setEnabled(true);
-        buttonGoBack.setVisible(false);
+        
+        buttonGoBack.setEnabled(false);
+        buttonType.setEnabled(true);
+        buttonBrand.setEnabled(true);
+        buttonAddingEstoque.setEnabled(true);
+        
+        buttonGoBack.setText("");
+        buttonType.setText("+");
+        buttonBrand.setText("+");
+        buttonAddingEstoque.setText("+");
+        
+        buttonGoBack.setOpaque(false);
+        buttonType.setOpaque(true);
+        buttonBrand.setOpaque(true);
+        buttonAddingEstoque.setOpaque(true);
+        
     }
 
+    public void editingForm() {
+        textFieldInfoItemProduto.setEditable(true);
+        comboBoxInfoItemTipo.setEnabled(true);
+        comboBoxInfoItemMarca.setEnabled(true);
+        textFieldInfoItemEstoque.setEditable(true);
+        textFieldInfoItemPreco.setEditable(true);
+        
+        buttonGoBack.setEnabled(true);
+        buttonType.setEnabled(false);
+        buttonBrand.setEnabled(false);
+        buttonAddingEstoque.setEnabled(false);
+        
+        buttonGoBack.setOpaque(true);
+        buttonType.setOpaque(false);
+        buttonBrand.setOpaque(false);
+        buttonAddingEstoque.setOpaque(false);
+        
+        buttonGoBack.setText("<");
+        buttonType.setText("");
+        buttonBrand.setText("");
+        buttonAddingEstoque.setText("");
+        
+        buttonNew.setEnabled(false);
+        buttonDel.setEnabled(false);
+        buttonSave.setEnabled(true);
+        buttonEdit.setEnabled(false);
+    }
+    
     public void reload() throws SQLException {
-        listItems();
-        listTypes();
-        listBrands();
+        updateLists();
         clearForm();
         resetForm();
     }
+
+    public void updateLists() {
+        try {
+        	listItems();
+            listTypes();
+            String selectedTipo = (String) comboBoxInfoItemTipo.getSelectedItem();
+            if (selectedTipo != null && !selectedTipo.isEmpty()) {
+                listBrandsForTypes(selectedTipo);
+            } else {
+                listBrands();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar listas");
+        }
+    }
+    
 }

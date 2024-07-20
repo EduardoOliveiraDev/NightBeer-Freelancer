@@ -375,6 +375,8 @@ public class BuildCreateTipoMarca {
 						e1.printStackTrace();
 					} 
 		        }
+		        
+		        updateLists();
 		        returnViewer();
 		    }
 		});
@@ -505,7 +507,7 @@ public class BuildCreateTipoMarca {
 					} 
 		        }
 		        
-		        reloadComboBoxTypes(); 
+		        updateLists();
 		        returnViewer();
 		    }
 		});
@@ -572,4 +574,18 @@ public class BuildCreateTipoMarca {
 
 	}
 
+	public void updateLists() {
+	    try {
+	        listTypes();
+	        String selectedTipo = (String) comboBoxTypes.getSelectedItem();
+	        if (selectedTipo != null && !selectedTipo.isEmpty()) {
+	            listBrandsForTypes(selectedTipo);
+	        } else {
+	            listBrands();
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "Erro ao atualizar listas");
+	    }
+	}
 }

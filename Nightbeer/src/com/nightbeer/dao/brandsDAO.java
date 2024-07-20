@@ -106,7 +106,7 @@ public class brandsDAO {
     public List<String> listBrand() throws SQLException {
         List<String> marcas = new ArrayList<>();
         PreparedStatement stmt = connection.prepareStatement
-        		("SELECT marca FROM marca");
+        		("SELECT marca FROM marca ORDER BY marca ASC");
         
         ResultSet rs = stmt.executeQuery();
         try {
@@ -126,7 +126,7 @@ public class brandsDAO {
     public List<String> listBrandsForTypes(String tipo) throws SQLException {
         List<String> marcas = new ArrayList<>();
         PreparedStatement stmt = connection.prepareStatement
-        		("SELECT DISTINCT marca FROM marca WHERE marca_tipo = ?");
+        		("SELECT DISTINCT marca FROM marca WHERE marca_tipo = ? ORDER BY marca ASC");
         		
         try {
             stmt.setString(1, tipo);

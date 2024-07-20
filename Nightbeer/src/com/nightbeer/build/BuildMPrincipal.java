@@ -52,7 +52,6 @@ public class BuildMPrincipal {
     private JLabel labelInfoItemEstoque;
     private JLabel labelInfoItemPreco;
     private JSpinner SpinnerInfoItemQuantidade;
-    private int previosValue;
     
     private JButton buttonAddingItemForTableBuy;
     private JButton buttonRemoveItemForTableBuy;
@@ -562,9 +561,6 @@ public class BuildMPrincipal {
         tabelaItems.setRowSelectionInterval(selectedRow, selectedRow);
     }
 
-
-
-    
     private void confirmBuy() {
         int response = JOptionPane.showConfirmDialog(frame, "Você deseja confirmar a compra?", "Confirmar compra", JOptionPane.YES_OPTION);
         if (response == JOptionPane.YES_OPTION) {
