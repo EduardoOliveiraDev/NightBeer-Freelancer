@@ -131,6 +131,15 @@ public class BuildMAdmin {
             TableColumn column = tabelaItems.getColumnModel().getColumn(i);
             column.setResizable(false);
         }
+        
+        TableColumnModel columnModel = tabelaItems.getColumnModel();
+        columnModel.getColumn(0).setMaxWidth(80); // Código
+        columnModel.getColumn(1).setMaxWidth(600); // Produto
+        columnModel.getColumn(2).setMaxWidth(200); // Tipo
+        columnModel.getColumn(3).setMaxWidth(200); // Marca
+        columnModel.getColumn(4).setMaxWidth(100); // Estoque
+        columnModel.getColumn(5).setMaxWidth(100); // Preço
+        
         return containerTableItems;
     }
 

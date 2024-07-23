@@ -12,7 +12,7 @@ import com.nightbeer.build.BuildCreateTipoMarca;
 @SuppressWarnings("serial")
 public class mCreateTipoMarca extends JFrame {
 	private JPanel contentPane = new JPanel(new BorderLayout());
-	private static mAdmin instance;
+	private static mCreateTipoMarca instance;
 	
 	public mCreateTipoMarca() throws SQLException {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -28,7 +28,7 @@ public class mCreateTipoMarca extends JFrame {
 		setLocationRelativeTo(null);
 	}
  
-	public static mAdmin getInstance() {
+	public static mCreateTipoMarca getInstance() {
 	    return instance;
 	}
 	

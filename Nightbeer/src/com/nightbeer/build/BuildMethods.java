@@ -118,7 +118,6 @@ public class BuildMethods{
 	
     public JComboBox<?> createComboBox(String textField, double width, double height, Color FontColor, Color BackgroundColor, Font FontFamiliy, int top, int right, int bottom, int left) {
         JComboBox<?> jComboBox = new JComboBox<>();
-        jComboBox.setFont(new Font("Tahoma", Font.PLAIN, 14));
         jComboBox.setForeground(FontColor);
         jComboBox.setBackground(BackgroundColor);
         jComboBox.setOpaque(true);
@@ -130,6 +129,20 @@ public class BuildMethods{
         return jComboBox;
     }
 
+    public JCheckBox createJCheckbox(String text, double width, double height, Color FontColor, Color BackgroundColor, Font FontFamiliy, int top, int right, int bottom, int left) {
+    	JCheckBox jCheckbox = new JCheckBox();
+    	jCheckbox.setText(text);
+    	jCheckbox.setForeground(FontColor);
+    	jCheckbox.setBackground(BackgroundColor);
+    	jCheckbox.setFont(FontFamiliy);
+    	jCheckbox.setBorder(BorderFactory.createMatteBorder(top, left, bottom, right, BackgroundColor));
+    	jCheckbox.setPreferredSize(createResponsive(width, height));
+    	
+    	jCheckbox.setToolTipText("Selecione esta opção");
+    	return jCheckbox;
+    }
+    
+    
 	public ImageIcon createImage(String locate, int width, int height) {
 		ImageIcon icon = new ImageIcon(getClass().getResource(locate));
 		

@@ -194,7 +194,7 @@ public class BuildHistoricBuy {
         if (containerTableShoppingCart == null) {
             containerTableShoppingCart = buildMethods.createPanel(60, 59, new BorderLayout(), colorBackgroundWhite, 30, 30, 30, 30);
 
-            String[] columnShoppingCart = {"Código", "Produto", "Tipo", "Marca", "Estoque", "Preço", "Quantidade", "Preço Total"};
+            String[] columnShoppingCart = {"Código", "Produto", "Und", "Valor", "Total"};
             dadosTableShoppinCart = new DefaultTableModel(columnShoppingCart, 0) {
                 public boolean isCellEditable(int row, int column) {
                     return false;

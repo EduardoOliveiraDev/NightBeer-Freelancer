@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -14,8 +13,9 @@ import javax.swing.text.AbstractDocument;
 
 import com.nightbeer.dao.dados;
 import com.nightbeer.dao.itemsDAO;
-import com.nightbeer.dao.purchasesHistoricDAO;
 import com.nightbeer.model.items;
+import com.nightbeer.model.purchaseData;
+import com.nightbeer.view.mPaymentMethod;
 import com.nightbeer.view.mPrincipal;
 
 public class BuildMPrincipal {
@@ -70,9 +70,18 @@ public class BuildMPrincipal {
     private JFrame frame;
     
     public BuildMPrincipal() {
+    	returnItems();
+
+    }
+
+    public void returnItems() {
         returnItemsTimer = new Timer(600000, e -> { // 600.000 = 10 minutos
             try {
 				returnItemsToStock();
+				if (mPaymentMethod.getInstance() != null && mPaymentMethod.getInstance().getVisibleFrame()) {
+					mPaymentMethod.getInstance().getFrame().dispose();
+				} else {
+				}
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
@@ -80,9 +89,8 @@ public class BuildMPrincipal {
             returnItemsTimer.stop(); 
         });
         returnItemsTimer.setRepeats(false);
-
     }
-    
+        
     public void listItems() throws SQLException {
         itemsDAO dao = new itemsDAO();
         List<items> lista = dao.listar();
@@ -98,7 +106,7 @@ public class BuildMPrincipal {
         }));
     }
 
-    private double calcTotalCust() {
+    public double calcTotalCust() {
         double sumTotalPriceOfItems = 0.0;
         int rowCount = dadosBuy.getRowCount();
         int columnIndex = 7; 
@@ -152,6 +160,14 @@ public class BuildMPrincipal {
             column.setResizable(false);
         }
 
+        TableColumnModel columnModel = tabelaItems.getColumnModel();
+        columnModel.getColumn(0).setMaxWidth(80); // Código
+        columnModel.getColumn(1).setMaxWidth(600); // Produto
+        columnModel.getColumn(2).setMaxWidth(200); // Tipo
+        columnModel.getColumn(3).setMaxWidth(200); // Marca
+        columnModel.getColumn(4).setMaxWidth(100); // Estoque
+        columnModel.getColumn(5).setMaxWidth(100); // Preço
+        
         containerTableItems.add(new JScrollPane(tabelaItems), BorderLayout.CENTER);
         
         tabelaItems.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -350,7 +366,8 @@ public class BuildMPrincipal {
 
         buttonConfirm.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                confirmBuy();
+            	purchaseData purchaseData = getPurchaseDataFromTable();
+                confirmBuy(purchaseData);
             } 
         });
         
@@ -561,23 +578,52 @@ public class BuildMPrincipal {
         tabelaItems.setRowSelectionInterval(selectedRow, selectedRow);
     }
 
-    private void confirmBuy() {
-        int response = JOptionPane.showConfirmDialog(frame, "Você deseja confirmar a compra?", "Confirmar compra", JOptionPane.YES_OPTION);
-        if (response == JOptionPane.YES_OPTION) {
-            purchasesHistoricDAO hDAO = new purchasesHistoricDAO();
-            double sumTotalPriceOfItems = calcTotalCust();
-            Map<Integer, Map<String, Object>> tableData = purchasesHistoricDAO.getShoppingCart(tabelaBuy);
-            try {
-                tabelaBuy.clearSelection();
-                hDAO.saveHistotic(tableData, sumTotalPriceOfItems);
+    private purchaseData getPurchaseDataFromTable() {
+        purchaseData purchaseData = new purchaseData();
+        int rowCount = dadosBuy.getRowCount();
+        int columnCount = dadosBuy.getColumnCount();
 
-                dadosBuy.setRowCount(0);
-                refreshTotalPrice();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Erro ao salvar historico de compras");
+        for (int i = 0; i < rowCount; i++) {
+            Object[] rowData = new Object[columnCount];
+            for (int j = 0; j < columnCount; j++) {
+                rowData[j] = dadosBuy.getValueAt(i, j);
             }
+            purchaseData.addRow(rowData);
         }
+
+        return purchaseData;
+    }
+    
+    private void confirmBuy(purchaseData purchaseData) {
+    	double total = calcTotalCust();
+    	mPaymentMethod paymentMethod = new mPaymentMethod(dadosBuy, total);
+    	
+    	if (tabelaBuy.getRowCount() != 0) {
+        	BuildPaymentMethod bd = new BuildPaymentMethod();
+        	bd.receberTabela(dadosBuy);
+    		paymentMethod.setVisible(true);
+        	resetReturnItemsTimer();
+		} else {
+			JOptionPane.showMessageDialog(null, "Carrinho está vazio.");
+		}
+    	
+//        int response = JOptionPane.showConfirmDialog(frame, "Você deseja confirmar a compra?", "Confirmar compra", JOptionPane.YES_OPTION);
+//        if (response == JOptionPane.YES_OPTION) {
+//        	
+//            purchasesHistoricDAO hDAO = new purchasesHistoricDAO();
+//            double sumTotalPriceOfItems = calcTotalCust();
+//            Map<Integer, Map<String, Object>> tableData = purchasesHistoricDAO.getShoppingCart(tabelaBuy);
+//            try {
+//                tabelaBuy.clearSelection();
+//                hDAO.saveHistotic(tableData, sumTotalPriceOfItems);
+//
+//                dadosBuy.setRowCount(0);
+//                refreshTotalPrice();
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//                JOptionPane.showMessageDialog(null, "Erro ao salvar historico de compras");
+//            }
+//        }
     }
     
     public void applyFilters() {
@@ -615,4 +661,5 @@ public class BuildMPrincipal {
         ex.printStackTrace(); // Adicione esta linha para depurar exceções no console
     }
     
+
 }
