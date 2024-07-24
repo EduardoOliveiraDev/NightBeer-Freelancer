@@ -66,7 +66,7 @@ public class mPrincipal extends JFrame{
 				} catch (SQLException e1) {
 					e1.printStackTrace();
 				}
-                dispose(); // Optionally close the application
+                System.exit(0);
             }
         });
         

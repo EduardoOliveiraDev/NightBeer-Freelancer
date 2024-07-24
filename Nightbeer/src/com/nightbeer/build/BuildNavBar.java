@@ -6,6 +6,9 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
@@ -29,6 +32,8 @@ public class BuildNavBar {
 
     private Color colorButton = buildMethod.colorButton;
     private Color colorButtonClose = buildMethod.colorButtonClose;
+    private Color colorRed = buildMethod.colorButtonRed;
+
     
     private Font FontRobotoPlainLarge = buildMethod.FontRobotoPlain22;
     
@@ -43,30 +48,31 @@ public class BuildNavBar {
     private JPanel painelLogoAndTitle; 
     private JPanel painelButtons;
     
-    public ImageIcon iconUser = buildMethod.createImage("../images/iconUserLogin.png", 35, 35);
-    public ImageIcon iconBack = buildMethod.createImage("../images/iconGoBack.png", 35, 35);
-    public ImageIcon iconHistoric  = buildMethod.createImage("../images/iconHistoric.png", 35, 35);
-    private JLabel icon = buildMethod.createIcon("../images/nightbeerIcon.jpg", 70, 70);
+    public ImageIcon iconUser = buildMethod.createImage("../images/iconUserLogin.png", 30,30);
+    public ImageIcon iconBack = buildMethod.createImage("../images/iconGoBack.png", 30,30);
+    public ImageIcon iconHistoric  = buildMethod.createImage("../images/iconHistoric.png", 30,30);
+    private JLabel icon = buildMethod.createIcon("../images/nightbeerIcon.jpg", 50, 50);
     
     public BuildNavBar() {
         initializeComponents();
         initialize();
+        houverButtons();
     }
      
     private void initializeComponents() {
         labelNavBarTitle = buildMethod.createLabel("", 22, 0, SwingConstants.LEFT, colorTextWhite, buildMethod.colorBackgroundBlack, FontRobotoPlainLarge, 0,0,0,0);
-        buttonAccess = buildMethod.createButton("", 5, 5.5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
+        buttonAccess = buildMethod.createButton("", 5, 4, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
+        buttonHistoric = buildMethod.createButton("", 3, 4, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
+        buttonMinimize = buildMethod.createButton("-", 2.2, 2.5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
+        buttonExit = buildMethod.createButton("X", 2.2, 2.5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
         buttonAccess.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 40, colorBlackBackground));
-        buttonHistoric = buildMethod.createButton("", 3, 5.5, SwingConstants.CENTER, colorTextWhite, colorBlackBackground);
-        buttonMinimize = buildMethod.createButton("-", 2.2, 2.5, SwingConstants.CENTER, colorTextWhite, colorButton);
-        buttonExit = buildMethod.createButton("X", 2.2, 2.5, SwingConstants.CENTER, colorTextWhite, colorButtonClose);
         
         buttonExit.setFont(buildMethod.FontRobotoPlain18);
         buttonMinimize.setFont(buildMethod.FontRobotoPlain18);
     }
     
     public JPanel containerNavBar() {
-        JPanel painelNavBar = buildMethod.createPanel(100, 6, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
+        JPanel painelNavBar = buildMethod.createPanel(100, 4.4, new BorderLayout(), colorBackgroundWhite, 0,0,0,0);
         painelNavBar.setBackground(buildMethod.colorBackgroundBlack);
         
         painelNavBar.add(painelLogoAndTitle, BorderLayout.WEST);
@@ -97,6 +103,49 @@ public class BuildNavBar {
         painelButtons.add(buttonMinimize);
         painelButtons.add(buttonExit);
         return painelButtons;
+    }
+    
+    public void houverButtons() {
+    	buttonExit.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                buttonExit.setBackground(colorRed);
+            }
+
+            public void mouseExited(MouseEvent e) {
+                buttonExit.setBackground(colorBlackBackground);
+            }
+        });
+    	
+    	buttonMinimize.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+            	buttonMinimize.setBackground(colorButton);
+            }
+
+            public void mouseExited(MouseEvent e) {
+            	buttonMinimize.setBackground(colorBlackBackground);
+            }
+        });
+    	
+    	buttonAccess.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+            	buttonAccess.setBackground(colorButton);
+            }
+
+            public void mouseExited(MouseEvent e) {
+            	buttonAccess.setBackground(colorBlackBackground);
+            }
+        });
+    	
+    	buttonHistoric.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+            	buttonHistoric.setBackground(colorButton);
+            }
+
+            public void mouseExited(MouseEvent e) {
+            	buttonHistoric.setBackground(colorBlackBackground);
+            }
+        });
+    	
     }
     
     public void replaceFunctionButton() throws SQLException {

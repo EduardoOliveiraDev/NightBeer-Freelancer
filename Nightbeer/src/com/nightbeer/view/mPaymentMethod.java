@@ -7,10 +7,12 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
+import com.nightbeer.build.BuildMPrincipal;
 import com.nightbeer.build.BuildPaymentMethod;
 
 public class mPaymentMethod extends JFrame {
     private JPanel contentPane = new JPanel(new BorderLayout());
+    private BuildMPrincipal buildMPrincipal = new BuildMPrincipal();
     private static mPaymentMethod instance;
 
     public mPaymentMethod(DefaultTableModel modelo, double total) {
@@ -22,6 +24,7 @@ public class mPaymentMethod extends JFrame {
         BuildPaymentMethod bp = new BuildPaymentMethod();
         bp.receberTabela(modelo); // Defina o modelo da tabela aqui
         bp.receberPriceTotal(total);
+        
         contentPane.add(bp.containerMain(this));
 
         setContentPane(contentPane);

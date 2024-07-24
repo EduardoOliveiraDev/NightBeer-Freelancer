@@ -18,7 +18,7 @@ import com.nightbeer.model.purchaseData;
 import com.nightbeer.view.mPaymentMethod;
 import com.nightbeer.view.mPrincipal;
 
-public class BuildMPrincipal {
+public class BuildMPrincipal{
     private BuildMethods buildMethod = new BuildMethods();
     private Color colorTextWhite = buildMethod.colorTextWhite;
     private Color colorTextBlack = buildMethod.colorTextBlack;
@@ -607,23 +607,6 @@ public class BuildMPrincipal {
 			JOptionPane.showMessageDialog(null, "Carrinho está vazio.");
 		}
     	
-//        int response = JOptionPane.showConfirmDialog(frame, "Você deseja confirmar a compra?", "Confirmar compra", JOptionPane.YES_OPTION);
-//        if (response == JOptionPane.YES_OPTION) {
-//        	
-//            purchasesHistoricDAO hDAO = new purchasesHistoricDAO();
-//            double sumTotalPriceOfItems = calcTotalCust();
-//            Map<Integer, Map<String, Object>> tableData = purchasesHistoricDAO.getShoppingCart(tabelaBuy);
-//            try {
-//                tabelaBuy.clearSelection();
-//                hDAO.saveHistotic(tableData, sumTotalPriceOfItems);
-//
-//                dadosBuy.setRowCount(0);
-//                refreshTotalPrice();
-//            } catch (SQLException e) {
-//                e.printStackTrace();
-//                JOptionPane.showMessageDialog(null, "Erro ao salvar historico de compras");
-//            }
-//        }
     }
     
     public void applyFilters() {
@@ -661,5 +644,10 @@ public class BuildMPrincipal {
         ex.printStackTrace(); // Adicione esta linha para depurar exceções no console
     }
     
+    public void clearConfirmBuy() {
+    	tabelaBuy.clearSelection();
+        dadosBuy.setRowCount(0);
+        refreshTotalPrice();
+    }
 
 }

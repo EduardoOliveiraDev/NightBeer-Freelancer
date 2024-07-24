@@ -28,14 +28,15 @@ public class purchasesHistoricDAO {
         this.connection = new connectionSQL().getConnect();
     }
 
-    public void saveHistotic(Map<Integer, Map<String, Object>> tableData, double totalPreco) throws SQLException {
+    public void saveHistotic(Map<Integer, Map<String, Object>> tableData, double totalPreco, String metodoPagemento) throws SQLException {
     	PreparedStatement stmt = connection.prepareStatement
-    			("INSERT INTO historico_de_compras (hashmap, total) VALUES (?, ?)");
+    			("INSERT INTO historico_de_compras (hashmap, total, metodo_pagamento) VALUES (?, ?, ?)");
     	
         try {
         	String hashString = convertHashMapToString(tableData);
         	stmt.setString(1, hashString);
         	stmt.setDouble(2, totalPreco);
+        	stmt.setString(3, metodoPagemento);
 	        stmt.executeUpdate();  
         	
         } catch (Exception e) {
@@ -92,6 +93,7 @@ public class purchasesHistoricDAO {
                 
                 obj.setHashmapJSON(rs.getString("hashmap"));
                 obj.setTotal(rs.getDouble("total"));
+                obj.setMetodoPagamento(rs.getString("metodo_pagamento"));
                 listHistoric.add(obj);
             }
             return listHistoric;

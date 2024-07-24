@@ -13,6 +13,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.BorderFactory;
@@ -33,8 +37,14 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.AbstractDocument;
 
+import com.nightbeer.dao.purchasesHistoricDAO;
+import com.nightbeer.model.editingTable;
+import com.nightbeer.model.regexDocumentFilter;
+import com.nightbeer.view.mPaymentMethod;
+
 public class BuildPaymentMethod {
     private BuildMethods buildMethods = new BuildMethods();
+    private BuildMPrincipal buildMPrincipal = new BuildMPrincipal();
     private Color colorTextWhite = buildMethods.colorTextWhite;
     private Color colorTextBlack = buildMethods.colorTextBlack;
     private Color colorBlackBackground = buildMethods.colorBackgroundBlack;
@@ -75,6 +85,8 @@ public class BuildPaymentMethod {
     private JButton buttonConfirm;
 
     private double totalCust;
+    
+    private JCheckBox selectedCheckBox;
 
     public void receberTabela(DefaultTableModel modelo) {
         this.dadosItemsBuyCart = modelo;
@@ -123,6 +135,8 @@ public class BuildPaymentMethod {
 
         checkBoxDinheiro = buildMethods.createJCheckbox("Dinheiro", 11.8, 4, colorTextBlack, colorBackgroundWhite, FontRobotoPlainMedium, 0, 0, 0, 10);
         textFieldValor = buildMethods.createTextField("", 6, 4, SwingConstants.CENTER, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 0, 0, 0);
+        
+        ((AbstractDocument) textFieldValor.getDocument()).setDocumentFilter(new regexDocumentFilter("\\d*([.,]\\d{0,2})?"));
         
         containerBodyMethodPayment.add(labelTitleMethodPayment, BorderLayout.NORTH);
 
@@ -191,6 +205,18 @@ public class BuildPaymentMethod {
         
         textFieldValor.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent evt) {
+            	String inputTextfieldValor = textFieldValor.getText();
+            	if (!inputTextfieldValor.isEmpty()) {
+                	double inputValor = Double.parseDouble(textFieldValor.getText());
+                	if (inputValor >= totalCust) {
+                		labelTitleTotalPaymentRemaining.setForeground(colorButtonGreen);
+    				} else {
+    					labelTitleTotalPaymentRemaining.setForeground(colorButtonRed);
+    				}
+				} else {
+					labelTitleTotalPaymentRemaining.setForeground(colorTextBlack);
+					labelTitleTotalPaymentRemaining.setText("Troco: R$ 0.00");
+				}
                 wrongChangeCash();
             }
         });
@@ -236,13 +262,10 @@ public class BuildPaymentMethod {
         tabelaItemsBuyCart = new JTable(customModel);
 
         // Remova colunas que não deseja exibir
-        removeColumnsFromTable(tabelaItemsBuyCart, 2, 3, 4);
-
-        // Defina a largura máxima das colunas
-        setColumnMaxWidths(tabelaItemsBuyCart, 40, 200, 60, 40, 60);
-
-        // Defina o alinhamento das células
-        setColumnAlignments(tabelaItemsBuyCart, SwingConstants.CENTER, SwingConstants.LEFT, SwingConstants.RIGHT, SwingConstants.RIGHT, SwingConstants.RIGHT);
+        editingTable editingTable = new editingTable();
+        editingTable.removeColumnsFromTable(tabelaItemsBuyCart, 2, 3, 4);
+        editingTable.setColumnMaxWidths(tabelaItemsBuyCart, 40, 200, 60, 40, 60);
+        editingTable.setColumnAlignments(tabelaItemsBuyCart, SwingConstants.CENTER, SwingConstants.LEFT, SwingConstants.RIGHT, SwingConstants.RIGHT, SwingConstants.RIGHT);
 
         JScrollPane scrollPane = new JScrollPane(tabelaItemsBuyCart);
         containerListItems.add(scrollPane, BorderLayout.CENTER);
@@ -250,8 +273,8 @@ public class BuildPaymentMethod {
         labelTitleTotalPayment.setText("Total a pagar: R$ " + totalCust);
         
         labelTitleTotalPaymentRemaining = buildMethods.createLabel("Troco: R$ 0.00", 18, 4, SwingConstants.LEFT, colorTextBlack, colorBackgroundWhite, FontRobotoPlainMedium, 0, 0, 0, 10);
-
         blockTextFieldValor();
+        
         containerBodyTotalPayment.add(containerListItems, BorderLayout.NORTH);
         containerBodyTotalPayment.add(labelTitleTotalPayment, BorderLayout.CENTER);
         containerBodyTotalPayment.add(labelTitleTotalPaymentRemaining, BorderLayout.SOUTH);
@@ -261,50 +284,16 @@ public class BuildPaymentMethod {
 
     public void wrongChangeCash() {
     	String textValue = textFieldValor.getText();
-    	int length = textValue.length();
     	if (!textValue.equalsIgnoreCase("")) {
         	try {
         		textValue = textValue.replace(',', '.');
         	    double inputValor = Double.parseDouble(textValue);
             	double ChangeCash = inputValor - totalCust;
             	labelTitleTotalPaymentRemaining.setText("Troco: R$ " + ChangeCash);
-        	} catch (NumberFormatException e) {
-        		JOptionPane.showMessageDialog(null, "Entrada inválida. Por favor, insira um número válido.");
-                if (length > 0) {
-                    textFieldValor.setText(textValue.substring(0, length - 1));
-                }
+        	} catch (Exception e) {
+        		System.err.println(e);
         	}
 		}
-    }
-    
-    // Método para remover colunas da tabela
-    private void removeColumnsFromTable(JTable table, int... columnIndices) {
-        TableColumnModel columnModel = table.getColumnModel();
-        for (int i = columnIndices.length - 1; i >= 0; i--) {
-            int index = columnIndices[i];
-            TableColumn column = columnModel.getColumn(index);
-            columnModel.removeColumn(column);
-        }
-    }
-
-    // Método para definir a largura máxima das colunas
-    private void setColumnMaxWidths(JTable table, int... maxWidths) {
-        TableColumnModel columnModel = table.getColumnModel();
-        for (int i = 0; i < maxWidths.length && i < columnModel.getColumnCount(); i++) {
-            TableColumn column = columnModel.getColumn(i);
-            column.setMaxWidth(maxWidths[i]);
-        }
-    }
-
-    // Método para definir o alinhamento das células
-    private void setColumnAlignments(JTable table, int... alignments) {
-        TableColumnModel columnModel = table.getColumnModel();
-        for (int i = 0; i < alignments.length && i < columnModel.getColumnCount(); i++) {
-            TableColumn column = columnModel.getColumn(i);
-            DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
-            renderer.setHorizontalAlignment(alignments[i]);
-            column.setCellRenderer(renderer);
-        }
     }
     
     public JPanel footerContainer() {
@@ -313,7 +302,7 @@ public class BuildPaymentMethod {
         buttonConfirm.setFont(FontRobotoPlainMedium);
         buttonConfirm.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	confirmBuy();
+            	checkingBuy();
             }
         });
 
@@ -321,50 +310,63 @@ public class BuildPaymentMethod {
         return containerFooter;
     }
     
-    public void confirmBuy() {
-        JCheckBox selectedCheckBox = null;
+    public void checkingBuy() {
         for (JCheckBox checkBox : new JCheckBox[]{checkBoxPix, checkBoxCartaoCred, checkBoxCartaoDeb, checkBoxDinheiro}) {
             if (checkBox.isSelected()) {
                 selectedCheckBox = checkBox;
                 break;
             }
         }
-
+        
+        // sem metodo de pagamento
+        if (selectedCheckBox == null) {
+			JOptionPane.showMessageDialog(null, "Selecione um metodo de pagamento");
+		}
+        
+        // apenas dinheiro
         if (selectedCheckBox != null && selectedCheckBox.getText().contentEquals("Dinheiro")) {
             String textValue = textFieldValor.getText();
             textValue = textValue.replace(',', '.');
 
-            // Corrige o texto para garantir no máximo duas casas decimais
-            textValue = correctDecimal(textValue);
-            textFieldValor.setText(textValue);
-
             try {
                 double inputValor = Double.parseDouble(textValue);
                 double changeCash = inputValor - totalCust;
-
                 if (inputValor >= totalCust) {
-                    System.out.println("Passou");
-                    labelTitleTotalPaymentRemaining.setText("Troco: R$ " + changeCash);
+                	confirmBuy();
                 } else {
-                	JOptionPane.showMessageDialog(null, "O valor pago insuficiente.");
+                    JOptionPane.showMessageDialog(null, "O valor pago é insuficiente.");
                 }
             } catch (NumberFormatException e) {
                 JOptionPane.showMessageDialog(null, "Entrada inválida. Por favor, insira um número válido.");
             }
-        } else {
-            System.out.println(selectedCheckBox.getText());
+		}
+
+        if (selectedCheckBox != null && !selectedCheckBox.getText().contentEquals("Dinheiro")) {
+        	System.out.println(selectedCheckBox.getText());
+        	confirmBuy();
+        }
+        
+    }
+    
+    
+    
+    public void confirmBuy() {
+        int response = JOptionPane.showConfirmDialog(null, "Você deseja confirmar a compra?", "Confirmar compra", JOptionPane.YES_OPTION);
+        if (response == JOptionPane.YES_OPTION) {
+            purchasesHistoricDAO hDAO = new purchasesHistoricDAO();
+            String metodoPagemento = selectedCheckBox.getText();
+            Map<Integer, Map<String, Object>> tableData = purchasesHistoricDAO.getShoppingCart(tabelaItemsBuyCart);
+            try {
+                hDAO.saveHistotic(tableData, totalCust, metodoPagemento);
+                
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Erro ao salvar historico de compras");
+            }
         }
     }
 
-    private String correctDecimal(String text) {
-        if (text.contains(".")) {
-            int index = text.indexOf(".");
-            if (text.length() - index - 1 > 2) {
-                text = text.substring(0, index + 3);
-            }
-        }
-        return text;
-    }
+
     
-    
+
 }

@@ -30,11 +30,13 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import com.nightbeer.dao.purchasesHistoricDAO;
+import com.nightbeer.model.editingTable;
 import com.nightbeer.model.historic;
 
 public class BuildHistoricBuy {
     private BuildMethods buildMethods = new BuildMethods();
-
+    private editingTable editingTable = new editingTable();
+    
     private Color colorBackgroundWhite = buildMethods.colorBackgroundWhite;
     private Color colorBlackBackground = buildMethods.colorBackgroundBlack;
     
@@ -162,7 +164,7 @@ public class BuildHistoricBuy {
 	public JPanel containerTableHistoric() {
         containerTableHistoric = buildMethods.createPanel(60, 59, new BorderLayout(), colorBackgroundWhite, 15, 30, 30, 30);
 
-        String[] columnBuy = {"codigo", "data", "carrinho", "total"};
+        String[] columnBuy = {"ID", "Data", "Carrinho", "Total", "Metodo de Pagamento"};
         historicDados = new DefaultTableModel(columnBuy, 0) {
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -178,6 +180,9 @@ public class BuildHistoricBuy {
             column.setResizable(false);
         }
 
+        editingTable.setColumnMaxWidths(historicBuyTable, 60, 140, 600, 80, 160);
+        editingTable.setColumnAlignments(historicBuyTable, SwingConstants.CENTER, SwingConstants.LEFT, SwingConstants.LEFT, SwingConstants.RIGHT, SwingConstants.RIGHT);
+        
         containerTableHistoric.add(new JScrollPane(historicBuyTable), BorderLayout.CENTER);
 
         try {
@@ -194,7 +199,7 @@ public class BuildHistoricBuy {
         if (containerTableShoppingCart == null) {
             containerTableShoppingCart = buildMethods.createPanel(60, 59, new BorderLayout(), colorBackgroundWhite, 30, 30, 30, 30);
 
-            String[] columnShoppingCart = {"Código", "Produto", "Und", "Valor", "Total"};
+            String[] columnShoppingCart = {"ID", "Produto", "Valor", "Und", "Total"};
             dadosTableShoppinCart = new DefaultTableModel(columnShoppingCart, 0) {
                 public boolean isCellEditable(int row, int column) {
                     return false;
@@ -202,6 +207,10 @@ public class BuildHistoricBuy {
             };
 
             TableShoppinCart = new JTable(dadosTableShoppinCart);
+            
+            editingTable.setColumnMaxWidths(TableShoppinCart, 60, 800, 140, 80, 140);
+            editingTable.setColumnAlignments(TableShoppinCart, SwingConstants.CENTER, SwingConstants.LEFT, SwingConstants.RIGHT, SwingConstants.CENTER, SwingConstants.RIGHT);
+            
             TableShoppinCart.setPreferredScrollableViewportSize(buildMethods.createResponsive(32, 60));
             TableShoppinCart.getTableHeader().setReorderingAllowed(false);
 
@@ -229,7 +238,8 @@ public class BuildHistoricBuy {
                 i.getId(),
                 formattedDate,
                 i.getHashmapJSON(),
-                i.getTotal()
+                i.getTotal(),
+                i.getMetodoPagamento()
             });
         }
     }
@@ -244,14 +254,11 @@ public class BuildHistoricBuy {
             Map<String, Object> details = entry.getValue();
             Object[] rowData = new Object[dadosTableShoppinCart.getColumnCount()];
             
-            rowData[0] = decimalFormat.format(details.get("Codigo"));
+            rowData[0] = decimalFormat.format(details.get("ID"));
             rowData[1] = details.get("Produto");
-            rowData[2] = details.get("Tipo");
-            rowData[3] = details.get("Marca");
-            rowData[4] = decimalFormat.format(details.get("Estoque"));
-            rowData[5] = "R$ " + details.get("Preço");
-            rowData[6] = decimalFormat.format(details.get("Quantidade"));
-            rowData[7] = "R$ " + details.get("Preço total");
+            rowData[2] = "R$ " + details.get("Valor");
+            rowData[3] = details.get("Und");
+            rowData[4] = "R$ " + details.get("Total");
             
             hashMapTableModel.addRow(rowData);
         }
