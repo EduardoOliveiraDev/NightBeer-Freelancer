@@ -22,7 +22,7 @@ public class mLogIn extends JFrame {
         setUndecorated(true);
         setTitle("LogIn");
 
-        this.setPreferredSize(buildMethod.createResponsive(20, 24));
+//        this.setPreferredSize(buildMethod.createResponsive(20, 24));
         JPanel loginPanel = builder.buildLoginPanel(this);
         contentPane.add(loginPanel);
 

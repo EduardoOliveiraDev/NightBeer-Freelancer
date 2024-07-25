@@ -15,6 +15,7 @@ import com.nightbeer.dao.brandsDAO;
 import com.nightbeer.dao.itemsDAO;
 import com.nightbeer.dao.typesDAO;
 import com.nightbeer.model.items;
+import com.nightbeer.model.regexDocumentFilter;
 import com.nightbeer.view.mAdmin;
 import com.nightbeer.view.mCreateTipoMarca;
 
@@ -169,8 +170,16 @@ public class BuildMAdmin {
         textFieldInfoItemEstoque  = buildMethod.createTextField("", 10.3, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         textFieldInfoItemPreco = buildMethod.createTextField("", 10.3, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         
+        
         ((AbstractDocument) textFieldInfoItemProduto.getDocument()).setDocumentFilter(new LimitDocumentFilter(255));
+        
         ((AbstractDocument) textFieldInfoItemEstoque.getDocument()).setDocumentFilter(new LimitDocumentFilter(11));
+        ((AbstractDocument) textFieldInfoItemEstoque.getDocument()).setDocumentFilter(new regexDocumentFilter("\\d*"));
+        
+        ((AbstractDocument) textFieldInfoItemPreco.getDocument()).setDocumentFilter(new regexDocumentFilter("\\d*([.,]\\d{0,2})?"));
+        
+        
+        
         
         buttonGoBack = buildMethod.createButton("<", 2.2, 2.5, SwingConstants.CENTER, colorBackgroundWhite, colorBlackBackground);
         buttonGoBack.setOpaque(false);

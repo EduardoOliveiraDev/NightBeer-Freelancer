@@ -15,6 +15,7 @@ import com.nightbeer.dao.dados;
 import com.nightbeer.dao.itemsDAO;
 import com.nightbeer.model.items;
 import com.nightbeer.model.purchaseData;
+import com.nightbeer.model.regexDocumentFilter;
 import com.nightbeer.view.mPaymentMethod;
 import com.nightbeer.view.mPrincipal;
 
@@ -67,11 +68,9 @@ public class BuildMPrincipal{
     private JButton buttonCancel;
     
     private Timer returnItemsTimer;
-    private JFrame frame;
-    
+    private static BuildMPrincipal instance;    
     public BuildMPrincipal() {
     	returnItems();
-
     }
 
     public void returnItems() {
@@ -218,7 +217,7 @@ public class BuildMPrincipal{
         labelTextQuantidade = buildMethod.createLabel("Quantidade", 6, 5, SwingConstants.RIGHT, colorTextBlack, colorBackgroundWhite, FontRobotoPlainSmall, 0,0,0,0);
         
         // Label to show items info
-        textFieldInfoItemCodigo = buildMethod.createTextField("", 10, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
+        textFieldInfoItemCodigo = buildMethod.createTextField("", 10, 4, SwingConstants.RIGHT, Color.GRAY, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         labelInfoItemProduto = buildMethod.createLabel("", 24.5, 4, SwingConstants.LEFT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,0,0,10);
         labelInfoItemTipo = buildMethod.createLabel("", 10, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         labelInfoItemMarca = buildMethod.createLabel("", 20, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
@@ -226,6 +225,27 @@ public class BuildMPrincipal{
         labelInfoItemPreco = buildMethod.createLabel("", 10, 4, SwingConstants.RIGHT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0,10,0,0);
         
         ((AbstractDocument) textFieldInfoItemCodigo.getDocument()).setDocumentFilter(new LimitDocumentFilter(100));
+        ((AbstractDocument) textFieldInfoItemCodigo.getDocument()).setDocumentFilter(new regexDocumentFilter("\\d*"));
+        
+        textFieldInfoItemCodigo.setText("00");
+        textFieldInfoItemCodigo.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (textFieldInfoItemCodigo.getText().equals("00")) {
+                	textFieldInfoItemCodigo.setText("");
+                	textFieldInfoItemCodigo.setForeground(Color.BLACK); 
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (textFieldInfoItemCodigo.getText().isEmpty()) {
+                	textFieldInfoItemCodigo.setText("00");
+                	textFieldInfoItemCodigo.setForeground(Color.GRAY); // Define a cor cinza para o texto de placeholder
+                }
+            }
+        });
+        
         textFieldInfoItemCodigo.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent evt) {
                 applyFilters();
@@ -299,7 +319,7 @@ public class BuildMPrincipal{
     }
     
 	public JPanel containerTableBuy() {
-        containerTableBuy = buildMethod.createPanel(32, 63.5, new BorderLayout(), colorBackgroundWhite, 11,0,0,0);
+        containerTableBuy = buildMethod.createPanel(32, 65.5, new BorderLayout(), colorBackgroundWhite, 11,0,0,0);
         containerTableBuy.setBackground(colorBlackBackground);
         
         String[] columnBuy = {"Codigo", "Produto", "Tipo", "Marca", "Estoque", "Preço", "Quantidade", "Preço total"};
@@ -644,10 +664,28 @@ public class BuildMPrincipal{
         ex.printStackTrace(); // Adicione esta linha para depurar exceções no console
     }
     
-    public void clearConfirmBuy() {
-    	tabelaBuy.clearSelection();
-        dadosBuy.setRowCount(0);
-        refreshTotalPrice();
+    public static BuildMPrincipal getInstance() {
+        if (instance == null) {
+            instance = new BuildMPrincipal();
+        }
+        return instance;
+    }
+
+    public JTable getTabelaBuy() {
+        return tabelaBuy;
+    }
+
+    public DefaultTableModel getDadosBuy() {
+        return dadosBuy;
+    }
+
+    public void clearTabelaBuy() {
+        if (dadosBuy != null) {
+        	tabelaBuy.clearSelection();
+            dadosBuy.setRowCount(0);
+            refreshTotalPrice();
+        } else {
+        }
     }
 
 }

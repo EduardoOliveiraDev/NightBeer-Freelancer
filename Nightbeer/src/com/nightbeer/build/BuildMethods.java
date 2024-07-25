@@ -57,6 +57,7 @@ public class BuildMethods{
 		jButton.setBorder(new EmptyBorder(0, 0, 0, 0));
 		jButton.setBackground(BackgroundColor);
 		jButton.setPreferredSize(createResponsive(width, height));
+		jButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		
 		return jButton;
 	}
@@ -125,6 +126,8 @@ public class BuildMethods{
         jComboBox.setBorder(BorderFactory.createMatteBorder(top, left, bottom, right, BackgroundColor));
         jComboBox.setPreferredSize(createResponsive(width, height));
         jComboBox.setMaximumRowCount(4);
+        jComboBox.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
 
         return jComboBox;
     }

@@ -87,7 +87,11 @@ public class BuildPaymentMethod {
     private double totalCust;
     
     private JCheckBox selectedCheckBox;
-
+    
+    public void setBuildMPrincipal(BuildMPrincipal buildMPrincipal) {
+        this.buildMPrincipal = buildMPrincipal;
+    }
+    
     public void receberTabela(DefaultTableModel modelo) {
         this.dadosItemsBuyCart = modelo;
     }
@@ -348,10 +352,8 @@ public class BuildPaymentMethod {
         
     }
     
-    
-    
     public void confirmBuy() {
-        int response = JOptionPane.showConfirmDialog(null, "Você deseja confirmar a compra?", "Confirmar compra", JOptionPane.YES_OPTION);
+        int response = JOptionPane.showConfirmDialog(null, "Você deseja confirmar a compra?", "Confirmar compra", JOptionPane.YES_NO_OPTION);
         if (response == JOptionPane.YES_OPTION) {
             purchasesHistoricDAO hDAO = new purchasesHistoricDAO();
             String metodoPagemento = selectedCheckBox.getText();
@@ -359,12 +361,25 @@ public class BuildPaymentMethod {
             try {
                 hDAO.saveHistotic(tableData, totalCust, metodoPagemento);
                 
+                JOptionPane.showMessageDialog(null, "Compra confirmada com sucesso!", "Confirmação", JOptionPane.INFORMATION_MESSAGE);
+                mPaymentMethod.getInstance().getFrame().dispose();
+                BuildMPrincipal buildMPrincipal = BuildMPrincipal.getInstance();
+                
+                if (buildMPrincipal != null) {
+                    DefaultTableModel dadosBuy = buildMPrincipal.getDadosBuy();
+                    if (dadosBuy != null) {
+                        buildMPrincipal.clearTabelaBuy(); // Limpa a tabela
+                    }
+                }
+                
             } catch (SQLException e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(null, "Erro ao salvar historico de compras");
+                JOptionPane.showMessageDialog(null, "Erro ao salvar histórico de compras");
             }
+        } else {
         }
     }
+
 
 
     

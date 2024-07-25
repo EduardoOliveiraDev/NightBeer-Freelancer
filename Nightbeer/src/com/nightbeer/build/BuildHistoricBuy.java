@@ -5,8 +5,12 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
@@ -42,12 +47,15 @@ public class BuildHistoricBuy {
     
     private Color colorTextBlack = buildMethods.colorTextBlack;
     private Color colorWhiteClear = buildMethods.colorWhiteClear;
+    private Color colorRed = buildMethods.colorButtonRed;
     
     private Color colorButtonClose = buildMethods.colorButtonClose;
     private Color colorButton = buildMethods.colorButton;
     
     private Font FontRobotoPlainSmall = buildMethods.FontRobotoPlain16;
+    private Font FontRobotoPlainMedium = buildMethods.FontRobotoPlain22;
 
+    
     private JPanel containerMain;
     private JPanel containerNavBar;
     private JLabel labelTitleNavBar;
@@ -81,10 +89,19 @@ public class BuildHistoricBuy {
 
     public JPanel navbar(JFrame frame) {
         containerNavBar = buildMethods.createPanel(50, 3.5, new BorderLayout(), colorBlackBackground, 0, 0, 0, 0);
-        labelTitleNavBar = buildMethods.createLabel("Histórico de compras", 10, 3, SwingConstants.LEFT, colorBackgroundWhite, colorBlackBackground, FontRobotoPlainSmall, 0, 0, 0, 10);
-        buttonExit = buildMethods.createButton("X", 2.5, 3.5, SwingConstants.CENTER, colorBlackBackground, colorButtonClose);
+        labelTitleNavBar = buildMethods.createLabel("Histórico de compras", 10, 3, SwingConstants.LEFT, colorWhiteClear, colorBlackBackground, FontRobotoPlainSmall, 0, 0, 0, 10);
+        buttonExit = buildMethods.createButton("X", 2.5, 3.5, SwingConstants.CENTER, colorWhiteClear, colorBlackBackground);
 
         buttonExit.addActionListener(e -> frame.dispose());
+    	buttonExit.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                buttonExit.setBackground(colorRed);
+            }
+
+            public void mouseExited(MouseEvent e) {
+                buttonExit.setBackground(colorBlackBackground);
+            }
+        });
 
         containerNavBar.add(buttonExit, BorderLayout.EAST);
         containerNavBar.add(labelTitleNavBar, BorderLayout.WEST);
@@ -94,7 +111,7 @@ public class BuildHistoricBuy {
     public JPanel containerSearch() {
         containerSearch = buildMethods.createPanel(60, 10, new BorderLayout(), colorBackgroundWhite, 30, 30, 15, 30);
 
-        textfieldSearch = buildMethods.createTextField("", 40, 0, SwingConstants.LEFT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 10, 0, 10);
+        textfieldSearch = buildMethods.createTextField("", 40, 0, SwingConstants.LEFT, Color.GRAY , colorWhiteClear, FontRobotoPlainSmall, 0, 10, 0, 10);
 
         buttonBack = buildMethods.createButton("", 3, 3, SwingConstants.CENTER, colorTextBlack, colorButton);
         buttonBack.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 15, colorBackgroundWhite));
@@ -110,6 +127,9 @@ public class BuildHistoricBuy {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = historicBuyTable.getSelectedRow();
                 if (selectedRow != -1) {
+                    // Pega o ID da coluna "ID" (index 0) da linha selecionada
+                    Object id = historicBuyTable.getValueAt(selectedRow, 0); // Assumindo que a coluna ID é a primeira (index 0)
+
                     String jsonString = (String) historicBuyTable.getValueAt(selectedRow, 2); // Assumindo que a coluna HashMap é a terceira (index 2)
                     Map<Integer, Map<String, Object>> hashMap = purchasesHistoricDAO.convertStringToHashMap(jsonString);
                     containerMain.remove(containerTableHistoric);
@@ -117,8 +137,15 @@ public class BuildHistoricBuy {
                     updateHashMapTable(hashMap);
                     containerMain.revalidate();
                     containerMain.repaint();
-                    
-                    textfieldSearch.setText("");
+
+//                  change textfield in id info cart
+                    textfieldSearch.setText("Carrinho: #" + id);
+                    textfieldSearch.setEditable(false);
+                    textfieldSearch.setBackground(colorBackgroundWhite);
+                    textfieldSearch.setBorder(BorderFactory.createMatteBorder(0, 10, 0, 10, colorBackgroundWhite));
+                    textfieldSearch.setForeground(colorTextBlack);
+                    textfieldSearch.setFont(FontRobotoPlainMedium);
+
                     buttonBack.setEnabled(true);
                     buttonBack.setOpaque(true);
                     buttonSend.setEnabled(false);
@@ -144,9 +171,35 @@ public class BuildHistoricBuy {
                     buttonSend.setOpaque(true);
                     buttonBack.setEnabled(false);
                     buttonBack.setOpaque(false);
+                    
+//                  change id info cart in textfield
+                    textfieldSearch.setEditable(true);
+                    textfieldSearch.setBackground(colorWhiteClear);
+                    textfieldSearch.setBorder(BorderFactory.createMatteBorder(0, 10, 0, 10, colorWhiteClear));
+                    textfieldSearch.setForeground(colorTextBlack);
+                    textfieldSearch.setFont(FontRobotoPlainSmall);
             }
         });
 
+        textfieldSearch.setText("Pesquisar...");
+        textfieldSearch.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (textfieldSearch.getText().equals("Pesquisar...")) {
+                	textfieldSearch.setText("");
+                	textfieldSearch.setForeground(Color.BLACK); 
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (textfieldSearch.getText().isEmpty()) {
+                	textfieldSearch.setText("Pesquisar...");
+                	textfieldSearch.setForeground(Color.GRAY); // Define a cor cinza para o texto de placeholder
+                }
+            }
+        });
+        
         textfieldSearch.addKeyListener(new KeyAdapter() {
         	public void keyReleased(KeyEvent evt) {
         		applyFilters();
@@ -164,6 +217,8 @@ public class BuildHistoricBuy {
 	public JPanel containerTableHistoric() {
         containerTableHistoric = buildMethods.createPanel(60, 59, new BorderLayout(), colorBackgroundWhite, 15, 30, 30, 30);
 
+
+        
         String[] columnBuy = {"ID", "Data", "Carrinho", "Total", "Metodo de Pagamento"};
         historicDados = new DefaultTableModel(columnBuy, 0) {
             public boolean isCellEditable(int row, int column) {
@@ -182,6 +237,8 @@ public class BuildHistoricBuy {
 
         editingTable.setColumnMaxWidths(historicBuyTable, 60, 140, 600, 80, 160);
         editingTable.setColumnAlignments(historicBuyTable, SwingConstants.CENTER, SwingConstants.LEFT, SwingConstants.LEFT, SwingConstants.RIGHT, SwingConstants.RIGHT);
+        
+        historicBuyTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);  
         
         containerTableHistoric.add(new JScrollPane(historicBuyTable), BorderLayout.CENTER);
 

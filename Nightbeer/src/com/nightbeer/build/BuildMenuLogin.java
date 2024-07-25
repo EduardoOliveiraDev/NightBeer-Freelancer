@@ -13,100 +13,194 @@ public class BuildMenuLogin {
     private BuildMethods buildMethod = new BuildMethods();
     
     private Color colorButton = buildMethod.colorButton;
-    private Color colorButtonClose = buildMethod.colorButtonClose;
     private Color colorButtonGrey = buildMethod.colorButtonGrey;
     private Color colorBlackBackground = buildMethod.colorBackgroundBlack;
-    private Color colorTextWhite = buildMethod.colorTextWhite;
-
+    private Color colorTextBlack = buildMethod.colorTextBlack;
+    private Color colorWhiteClear = buildMethod.colorWhiteClear;
+    private Color colorBackgroundWhite = buildMethod.colorBackgroundWhite;
+    private Color colorRed = buildMethod.colorButtonRed;
+    
     private Font FontRobotoPlainSmall = buildMethod.FontRobotoPlain16;
     
+    private JPanel contentPane;
     private JPanel containerNavBar;
     private JButton buttonClose;
+    private JLabel labelTitle;
 
     private JPanel containerComponentes;
-    private JLabel labelUser;
-    private JLabel labelPassword;
-    private JLabel labelPasswordError;
+    private JPanel containerBox1; //
+    private JPanel containerBox2; //
     private JTextField textFieldUser;
-    private JPasswordField textFieldPassword;   
+    private JTextField textFieldPasswordShow;
+    private JPasswordField textFieldPassword;
+    private JLabel labelPasswordError;
     
     private JPanel panelMain; 
     private JButton buttonSend;
     
-    
     public JPanel buildLoginPanel(JFrame frame) {
-        openFrame(frame);
         blockingPanel(frame);
         initialize(frame);
         
-        JPanel contentPane = new JPanel(new BorderLayout());
+        contentPane = buildMethod.createPanel(26, 26, new BorderLayout(), colorBlackBackground, 0, 0, 0, 0);
         contentPane.add(panelMain);
         return contentPane;
     }
     
     public JPanel blockingPanel(JFrame frame) {
         panelMain = new JPanel(new BorderLayout());
-        panelMain.setBackground(colorBlackBackground);
         panelMain.add(navBarContainer(), BorderLayout.NORTH);
         panelMain.add(loginComponents(), BorderLayout.CENTER);
         return panelMain;
     }
     
     public JPanel navBarContainer() {
-        containerNavBar = new JPanel(new BorderLayout());
-        buttonClose = buildMethod.createButton("X", 2.4, 2.6, SwingConstants.CENTER, colorTextWhite, colorButtonClose);
+        containerNavBar = buildMethod.createPanel(26, 3, new BorderLayout(), colorBlackBackground, 0, 0, 0, 10);
+        labelTitle = buildMethod.createLabel("Tela de login", 6, 2.6, SwingConstants.LEFT, colorWhiteClear, colorBlackBackground, FontRobotoPlainSmall, 0, 0, 0, 0);
+        
+        buttonClose = buildMethod.createButton("X", 2.4, 2.6, SwingConstants.CENTER, colorWhiteClear, colorBlackBackground);
         buttonClose.setFont(FontRobotoPlainSmall);
         
+        containerNavBar.add(labelTitle, BorderLayout.WEST);
         containerNavBar.add(buttonClose, BorderLayout.EAST);
-        containerNavBar.setBackground(colorBlackBackground);
         return containerNavBar;
     }
     
     public JPanel loginComponents() {
-        containerComponentes = new JPanel(new FlowLayout());
-        containerComponentes.setBackground(colorBlackBackground);
+        containerComponentes = buildMethod.createPanel(30, 27, new FlowLayout(), colorBackgroundWhite, 0, 0, 0, 0);
+
+        textFieldUser = buildMethod.createTextField("Usuario", 20, 4, SwingConstants.LEFT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 10, 0, 10);
+        textFieldPasswordShow = buildMethod.createTextField("", 20, 4, SwingConstants.LEFT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 10, 0, 10);
+        textFieldPassword = buildMethod.createPasswordField("", 20, 4, SwingConstants.LEFT, colorTextBlack, colorWhiteClear, FontRobotoPlainSmall, 0, 10, 0, 10);
+        labelPasswordError = buildMethod.createLabel("Senha errada, tente novamente.", 13, 3, SwingConstants.LEFT, colorBackgroundWhite, colorBackgroundWhite, FontRobotoPlainSmall, 0, 0, 0, 0);
+        buttonSend = buildMethod.createButton("Enviar", 5, 4, SwingConstants.CENTER, colorWhiteClear, colorButton);
         
-        JPanel blockingComponents = new JPanel(new BorderLayout());
-        JPanel componentsLogin = new JPanel(new GridLayout(5, 1));
+        // Placeholder para textFieldUser
+        addPlaceholder(textFieldUser, "Usuario");
+        addPlaceholder(textFieldPasswordShow, "Senha");
+
+        // Configuração inicial do textFieldPasswordShow
+        configurePasswordShow();
+
+        containerBox1 = buildMethod.createPanel(20, 12, new FlowLayout(FlowLayout.RIGHT), colorBackgroundWhite, 30, 0, 0, 0);
+        containerBox1.add(textFieldUser);
+        containerBox1.add(textFieldPasswordShow);
         
-        labelUser = buildMethod.createLabel("Usuario", 4, 3, SwingConstants.LEFT, colorTextWhite, colorBlackBackground, FontRobotoPlainSmall, 0,0,0,0);
-        labelPassword = buildMethod.createLabel("Senha", 4, 3, SwingConstants.LEFT, colorTextWhite, colorBlackBackground, FontRobotoPlainSmall, 0,0,0,0);
-        labelPasswordError = buildMethod.createLabel("Senha errada, tente novamente.", 16, 3, SwingConstants.LEFT, colorBlackBackground, colorBlackBackground, FontRobotoPlainSmall, 0,0,0,0); 
+        containerBox2 = buildMethod.createPanel(20, 3.5, new BorderLayout(), colorBackgroundWhite, 0, 0, 0, 0);
+        containerBox2.add(labelPasswordError, BorderLayout.WEST);
+        containerBox2.add(buttonSend, BorderLayout.EAST);
         
-        textFieldUser = buildMethod.createTextField("Usuario", 16, 3, SwingConstants.LEFT, colorTextWhite, colorButtonGrey, FontRobotoPlainSmall, 0,10,0,10);  
-        textFieldPassword = buildMethod.createPasswordField("Password", 16, 3, SwingConstants.LEFT, colorTextWhite, colorButtonGrey, FontRobotoPlainSmall, 0,10,0,10);
-        
-        componentsLogin.add(labelUser);
-        componentsLogin.add(textFieldUser);
-        componentsLogin.add(labelPassword);
-        componentsLogin.add(textFieldPassword);
-        componentsLogin.add(labelPasswordError);
-        
-        JPanel bottomContainer = new JPanel(new BorderLayout());
-        bottomContainer.setBackground(colorBlackBackground);
-        
-        buttonSend = buildMethod.createButton("Enviar", 5, 3, SwingConstants.CENTER, colorTextWhite, colorButton);
-        bottomContainer.add(buttonSend, BorderLayout.EAST);
-        
-        blockingComponents.add(componentsLogin, BorderLayout.CENTER);
-        blockingComponents.add(bottomContainer, BorderLayout.SOUTH);
-        
-        containerComponentes.add(blockingComponents);
+        containerComponentes.add(containerBox1);
+        containerComponentes.add(containerBox2);
+
+
+        buttonSend.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String passwordString = new String(textFieldPassword.getPassword());
+                labelPasswordError.setVisible(passwordString.isEmpty()); // Exibe erro se a senha estiver vazia
+            }
+        });
+
         return containerComponentes;
+    }
+
+    private void configurePasswordShow() {
+        textFieldPasswordShow.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {
+            	transformTextFieldToPasswordField();
+            }
+        });
+
+        textFieldPassword.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+            	if (new String(textFieldPassword.getPassword()).isEmpty()) {
+            		transformPasswordFieldToTextField();
+				}
+            }
+        });
+    }
+    
+    public void transformTextFieldToPasswordField() {
+    	containerBox1.remove(textFieldPasswordShow);
+    	containerBox1.add(textFieldPassword);
+    	
+    	containerBox1.revalidate(); // Recalcula o layout
+    	containerBox1.repaint(); // Redesenha o painel
+    	textFieldPassword.requestFocus();
+    }
+    
+    public void transformPasswordFieldToTextField() {
+    	containerBox1.add(textFieldPasswordShow);
+    	containerBox1.remove(textFieldPassword);
+    	
+    	containerBox1.revalidate(); // Recalcula o layout
+    	containerBox1.repaint(); // Redesenha o painel
+    }
+
+    private void addPlaceholder(JTextField textField, String placeholder) {
+        textField.setForeground(Color.GRAY);
+        textField.setText(placeholder);
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (textField.getText().equals(placeholder)) {
+                    textField.setText("");
+                    textField.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (textField.getText().isEmpty()) {
+                    textField.setText(placeholder);
+                    textField.setForeground(Color.GRAY);
+                }
+            }
+        });
     }
      
     @SuppressWarnings("deprecation")
-	public void initialize(JFrame frame) {
-    	buttonClose.addActionListener(e -> frame.dispose());
+    public void initialize(JFrame frame) {
+        buttonClose.addActionListener(e -> frame.dispose());
+        
+        buttonClose.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                buttonClose.setBackground(colorRed);
+            }
+
+            public void mouseExited(MouseEvent e) {
+                buttonClose.setBackground(colorBlackBackground);
+            }
+        });
+        
+        buttonSend.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+            	buttonSend.setBackground(colorButtonGrey);
+            }
+
+            public void mouseExited(MouseEvent e) {
+            	buttonSend.setBackground(colorButton);
+            }
+        });
         
         if (buttonSend != null) {
             buttonSend.addActionListener(e -> {
                 dados msDados = new dados();
-                if (!msDados.validUser(textFieldUser.getText(), textFieldPassword.getText())) {
-                    textFieldUser.setText("");
-                    textFieldPassword.setText("");
-                    textFieldUser.requestFocusInWindow();
+                String user = textFieldUser.getText();
+                String password = new String(textFieldPassword.getPassword());
+                if (!msDados.validUser(user, password)) {
+                	textFieldPassword.setText("");
+                	textFieldUser.setText("Usuario");
+                	textFieldUser.setForeground(Color.GRAY);
+                    textFieldPasswordShow.setText("Senha");
+                    textFieldPasswordShow.setForeground(Color.GRAY);
+                    transformTextFieldToPasswordField();
+                    labelTitle.requestFocus();
+                    
                     labelPasswordError.setForeground(new Color(200, 0, 0));
+                    labelPasswordError.setVisible(true); // Exibe mensagem de erro
                 } else {
                     mAdmin mAdmin = null;
                     try {
@@ -114,13 +208,15 @@ public class BuildMenuLogin {
                     } catch (SQLException e1) {
                         e1.printStackTrace();
                     }
-                    mAdmin.setVisible(true);
-                    mAdmin.setBounds(BuildMethods.bounds);
-                  
-                    // close login menu
+                    if (mAdmin != null) {
+                        mAdmin.setVisible(true);
+                        mAdmin.setBounds(BuildMethods.bounds);
+                    }
+
+                    // Fecha o menu de login
                     frame.dispose();
                     
-                    // close menu principal
+                    // Fecha o menu principal
                     mPrincipal.getInstance().getFrame().dispose();
                 }
             });
@@ -129,13 +225,5 @@ public class BuildMenuLogin {
         }
         
         frame.getRootPane().setDefaultButton(buttonSend);
-    }
-    
-    public void openFrame(JFrame frame) {
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowOpened(WindowEvent e) {
-                textFieldUser.requestFocus();
-            }
-        });
     }
 }
